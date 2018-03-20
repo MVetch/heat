@@ -32,3 +32,8 @@ double Roll::initT(qreal r)
 {
     return 70;
 }
+
+double Roll::countmmToHeat()
+{
+    return 0.020;
+}

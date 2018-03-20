@@ -14,12 +14,14 @@ public:
     qreal getRho();
     qreal getLambda();
     double initT(qreal r);
+    double countmmToHeat();
 
 private:
     qreal radius;
     double c;
     double rho;
     double lambda;
+    double mmToHeat;
 };
 
 #endif // ROLL_H

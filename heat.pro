@@ -29,14 +29,16 @@ SOURCES += \
     qcustomplot.cpp \
     diffequation.cpp \
     focus.cpp \
-    roll.cpp
+    roll.cpp \
+    strip.cpp
 
 HEADERS += \
         mainwindow.h \
     qcustomplot.h \
     diffequation.h \
     focus.h \
-    roll.h
+    roll.h \
+    strip.h
 
 FORMS += \
         mainwindow.ui
