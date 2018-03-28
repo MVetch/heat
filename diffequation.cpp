@@ -13,6 +13,51 @@ diffEquation::diffEquation(
     this->h = (focus.r_max - focus.getRoll().getR() + focus.getRoll().countmmToHeat())/M;
     this->theta = focus.phi_max/N;
     this->Mcont = MUpdate(0, h);
+
+    double sigmaF = 0.059;
+    double sigmaB = 0.05;
+    double pXin = Kdef(0) - sigmaB * 9.8;
+    double pXout = Kdef(focus.phi_max) - sigmaB * 9.8;
+    double mu = 0.23;
+    px0.push_back(pXin);
+    for(int i = 1; i < N; i++){
+        px0.push_back(
+            px0[i-1] + (Kdef(i * theta) - Kdef((i - 1) * theta)) + Kdef((i - 1) * theta) * focus.epsH(
+                                                                                    focus.curH((i - 1) * theta),
+                                                                                    focus.curH(i * theta)
+                                                                                   ) + mu * theta * px0[i-1] / focus.curH(i * theta)
+        );
+    }
+    px1.push_back(pXout);
+    for(int i = 1; i < N; i++){
+        px1.push_back(
+            px1[i-1] - (Kdef(i * theta) - Kdef((i - 1) * theta)) + Kdef((i - 1) * theta) * focus.epsH(
+                                                                                    focus.curH((N - i + 1) * theta),
+                                                                                    focus.curH((N - i) * theta)
+                                                                                   ) + mu * theta * px1[i-1] / focus.curH((N - i) * theta)
+        );
+    }
+    double temp = 0;
+    Nneutr = 0;
+    for(int i = 0; i < N; i++){
+        temp = qMin(px0[i], px1[N - i - 1]);
+        if(temp == px1[N - i - 1] && Nneutr == 0) Nneutr = i-1;
+
+        pxCont.push_back(temp);
+        tauContAbs.push_back(mu * pxCont[i]);
+        tauShear.push_back(Kdef(i * theta) / 1.15 / 2);
+    }
+    NBack = 0, NForward = 0;
+    for(int i = 0; i < Nneutr; i++){
+        temp = qMin(tauContAbs[i], tauShear[i]);
+        tauCont.push_back(temp);
+        if(temp == tauShear[i] && NBack == 0) NBack = i-1;
+    }
+    for(int i = Nneutr; i < N; i++){
+        temp = -qMin(tauContAbs[i], tauShear[i]);
+        tauCont.push_back(temp);
+        if(temp == -tauContAbs[i] && NForward == 0) NForward = i-1;
+    }
 }
 
 diffEquation::~diffEquation(){
@@ -20,36 +65,26 @@ diffEquation::~diffEquation(){
 }
 
 double diffEquation::f(double phi){
-    return 1000000 * 0.85 / focus.getStrip().getC() / focus.getStrip().getRho() * Kdef() * qLn(focus.getHBefore() / focus.getHAfter());
+    return 1000000 * 0.85 / focus.getStrip().getC() / focus.getStrip().getRho() * Kdef(phi) * qLn(focus.getHBefore() / focus.getHAfter());
 }
 double diffEquation::q(int i){
-    double f_h = 0.000059;//метров
-    double e_h = 1.72;
-    double nu = 0.42;
-    double F = 3.047;//килограмм-сила. в маткаде даны в тоннах-силе
-    double W = 1.357;
-    double k_f = Kdef();
-    double lambda_com = (focus.getStrip().getLambda() * focus.getRoll().getLambda())/(focus.getStrip().getLambda() + focus.getRoll().getLambda());
-    double hCond = lambda_com / f_h * qPow((F / (3 * W * focus.length * k_f)), e_h);
-    double v_wr_in =  73.0  / 60.0;//метров в секунду
-    double v_wr_out = 150.0 / 60.0;//метров в секунду
-    double v_rel = v_wr_in - (v_wr_out * focus.getHAfter()) /
-                             (qCos(i * theta) * (focus.getHAfter() +
-                                                    2 * focus.getRoll().getR() * (1-qCos(i*theta))
-                                                )
-                              );
-    double q_fric = nu * F/(W*focus.length) * qAbs(v_rel);
-    double q_cond = hCond*(u[i-1][Mcont+10] - u[i-1][Mcont-10]);
-    return q_cond - q_fric;
+
+    //if(i > NBack && i < NForward) return 0;
+    double Vwr = 73.0 / 60.0;
+    double omegaSlip = Vwr * (focus.curH(Nneutr * theta) / focus.curH(i * theta) - 1);
+
+    /*должно быть tauCont1, которое высчитывается по странной формуле*/
+    double q = qAbs(tauCont[i] * omegaSlip) * 1000000;
+    return q;
 }
 
-double diffEquation::Kdef(){
+double diffEquation::Kdef(double phi){
     double aSt = 0.124, bSt = 0.167, cSt = -2.54, sSt = 0.96;
     double deltaY0 = 90.7;
-    double Ts = 1000;
+    double Ts = focus.getStrip().initT(0);
     double v_wr_in =  73.0  / 60.0;//метров в секунду
     double u = 2.0 * v_wr_in * focus.length / (focus.getRoll().getR() * (focus.getHBefore() + focus.getHAfter()));
-    return sSt * deltaY0 * qPow(u, aSt) * qPow((10 * (focus.getHBefore() - focus.getHAfter()) / focus.getHBefore()), bSt) * qPow(Ts/1000, cSt);
+    return sSt * deltaY0 * qPow(u, aSt) * qPow(10 * focus.epsH(focus.curH(phi), focus.getHBefore()), bSt) * qPow(Ts/1000, cSt);
 }
 
 int diffEquation::MUpdate(double phi, double h){
@@ -94,7 +129,6 @@ void diffEquation::solve(){
         for(int j = Mcur; j < M; j++){
             u[i+1][j] = focus.getStrip().initT(j * h);
         }
-        //if(angle < beta) u[i+1][Mcur-1] = 1000;//начальная температура в глубину полосы
         for(int j = 0; j < Mcur; j++){
             if(j > Mcont){
                 a = a_s;
@@ -118,7 +152,7 @@ void diffEquation::solve(){
             c[j] = 1 + 2 * theta * a / (h*h);
             d[j] = - theta * a / (h*h);
         }
-        r[Mcont] += q(i+1)*theta*(a_s + a_v)/2 / (h*(lambda_s+lambda_v)/2);
+        r[Mcont] += q(i)*theta*(a_s + a_v)/2 / (h*(lambda_s+lambda_v)/2);
         //r[Mcont+1] += theta*a_s / (h * lambda_s / 2);
         //c[Mcont] = 0;
         //c[Mcont+1] = 0;
@@ -143,13 +177,6 @@ void diffEquation::solve(){
         if(angle >= focus.beta)
             u[i+1][Mcur] = u[i+1][Mcur-1];
     }
-}
-
-double diffEquation::X(double r, double phi){
-    return r*qCos(phi);
-}
-double diffEquation::Y(double r, double phi){
-    return r*qSin(phi);
 }
 
 QVector<QVector<qreal>> diffEquation::getResult()

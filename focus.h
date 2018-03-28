@@ -12,14 +12,16 @@ public:
     Focus(qreal, qreal, Roll, Strip);
     Roll getRoll();
     Strip getStrip();
-    qreal getHBefore();
-    qreal getHAfter();
+    double getHBefore();
+    double getHAfter();
     double maxR(double phi);
+    double epsH(double h, double h_max);
+    double curH(double phi);
     double length;
     double phi_max, r_max, alpha, beta;
 private:
-    qreal h_b;
-    qreal h_a;
+    double h_b;
+    double h_a;
     Roll roll;
     Strip strip;
 };

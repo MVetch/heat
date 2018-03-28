@@ -24,17 +24,27 @@ Roll Focus::getRoll()
     return this->roll;
 }
 
+double Focus::epsH(double h, double h_max)
+{
+    return (h_max - h)/h_max;
+}
+
+double Focus::curH(double phi)
+{
+    return roll.getR() * (1 - qCos(phi_max - phi)) + h_a / 2;
+}
+
 Strip Focus::getStrip()
 {
     return this->strip;
 }
 
-qreal Focus::getHBefore()
+double Focus::getHBefore()
 {
     return this->h_b;
 }
 
-qreal Focus::getHAfter()
+double Focus::getHAfter()
 {
     return this->h_a;
 }

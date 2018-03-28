@@ -17,14 +17,17 @@ public:
     double getResult(int i, int j);
     Focus getFocus();
     int MUpdate(double,double);
-    double X(double, double);
-    double Y(double, double);
     double q(int i);
     double f(double);
-    double Kdef();
+    double Kdef(double phi);
     int M, N, Mcont;
+    int NBack, NForward, Nneutr;
+    QVector<double> tauContAbs, tauShear, tauCont;
     qreal h;
     qreal theta;
+    QVector<double> px0;
+    QVector<double> px1;
+    QVector<double> pxCont;
 
 private:
     Focus focus;

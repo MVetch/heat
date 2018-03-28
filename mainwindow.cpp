@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(onClick()));
+    //this->setStyleSheet("*{font-size:10px;}");
 }
 
 MainWindow::~MainWindow()
@@ -78,54 +79,183 @@ void MainWindow::onClick(){
                 ui->tableWidget->item(i, j)->setBackground(Qt::green);
         }
     }
+    ui->tableWidget->resizeColumnsToContents();
     ui->tableWidget->setHorizontalHeaderItem(de.Mcont, new QTableWidgetItem("Стык"));
     ui->tableWidget->setHorizontalHeaderItem(de.Mcont + 1, new QTableWidgetItem("Окалина"));
 
-    //график радиуса
-//    QVector<double> x(5000), y(5000); //Массивы координат точек
-//    ui->widget->clearGraphs();
-//    double curRmax;
-//    for (int i = 0; i < 5000; i++){
-//        angle = (double)(i*focus.phi_max)/5000;
-//        curRmax = focus.maxR(angle);
-//        //x[i] = it;
-//        //y[i] = curRmax;
-//        y[i] = Y(curRmax, angle);
-//        x[i] = X(curRmax, angle);
-//    }
-//    ui->widget->xAxis->setRange(X(R, 0), 2*X(focus.r_max, focus.phi_max));//Для оси Ox
-//    ui->widget->yAxis->setRange(Y(R, 0), Y(focus.r_max, focus.phi_max));//Для оси Oy
-//    ui->widget->addGraph();
-//    ui->widget->graph(0)->setData(x, y);
-//    ui->widget->replot();
-
-
-    //график q()
-    QVector<double> x(res.size()), y(res.size()); //Массивы координат точек
-    ui->widget->clearGraphs();
+    //график q();
+    QVector<double> x(de.N), y(de.N); //Массивы координат точек
+    ui->widget_q->clearGraphs();
     double maxY = 0, minY = 1e90;
-    for (int i = 0; i < res.size(); i++){
+
+    for (int i = 0; i < de.N; i++){
         x[i] = i;
-        y[i] = de.q(i+1);
+        y[i] = de.q(i);
         if(y[i] > maxY) maxY = y[i];
         if(y[i] < minY) minY = y[i];
     }
-    ui->widget->xAxis->setRange(0, res.size());//Для оси Ox
-    ui->widget->yAxis->setRange(minY/2, maxY*1.2);//Для оси Oy
-    ui->widget->addGraph();
-    ui->widget->graph(0)->setData(x, y);
-    ui->widget->graph(0)->setPen(QPen(Qt::red));
-    ui->widget->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 20)));
-    ui->widget->graph(0)->setName("Тепловой поток");
+    ui->widget_q->xAxis->setRange(0, res.size());//Для оси Ox
+    ui->widget_q->yAxis->setRange(minY/2, maxY*1.2);//Для оси Oy
+    ui->widget_q->xAxis->setLabel("Номер точки  по длине очага");
+    ui->widget_q->yAxis->setLabel("Вт/м^2");
+    ui->widget_q->addGraph();
+    ui->widget_q->graph(0)->setData(x, y);
+    ui->widget_q->graph(0)->setPen(QPen(Qt::red));
+    ui->widget_q->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 70)));
+    ui->widget_q->graph(0)->setName("Тепловой поток");
 
-    ui->widget->setInteractions(QCP::iRangeDrag);
-    ui->widget->axisRects().at(0)->setRangeDrag(Qt::Vertical);
+    ui->widget_q->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+    //ui->widget_q->axisRects().at(0)->setRangeDrag(Qt::Vertical);
 
-    ui->widget->legend->setVisible(true);
-    ui->widget->legend->setBrush(QBrush(QColor(255,255,255,150)));
-    ui->widget->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight|Qt::AlignTop);
+    ui->widget_q->legend->setVisible(true);
+    ui->widget_q->legend->setBrush(QBrush(QColor(255,255,255,150)));
+    ui->widget_q->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight|Qt::AlignTop);
 
-    ui->widget->replot();
+    ui->widget_q->replot();
+
+    //график px();
+    x.resize(de.N), y.resize(de.N); //Массивы координат точек
+    ui->widget_px->clearGraphs();
+    maxY = 0, minY = 1e90;
+
+    for (int i = 0; i < de.N; i++){
+        x[i] = i;
+        y[i] = de.pxCont[i];
+        if(y[i] > maxY) maxY = y[i];
+        if(y[i] < minY) minY = y[i];
+    }
+    ui->widget_px->xAxis->setRange(0, res.size());//Для оси Ox
+    ui->widget_px->yAxis->setRange(minY/2, maxY*1.2);//Для оси Oy
+    ui->widget_px->xAxis->setLabel("Номер точки  по длине очага");
+    ui->widget_px->yAxis->setLabel("МН/м^2");
+    ui->widget_px->addGraph();
+    ui->widget_px->graph(0)->setData(x, y);
+    ui->widget_px->graph(0)->setPen(QPen(Qt::red));
+    ui->widget_px->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 70)));
+    ui->widget_px->graph(0)->setName("Нормальное давление");
+
+    ui->widget_px->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+
+
+    ui->widget_px->legend->setVisible(true);
+    ui->widget_px->legend->setBrush(QBrush(QColor(255,255,255,150)));
+    ui->widget_px->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
+
+    ui->widget_px->replot();
+
+    //график KDef;
+    x.resize(de.N), y.resize(de.N); //Массивы координат точек
+    ui->widget_KDef->clearGraphs();
+    maxY = 0, minY = 1e90;
+
+    for (int i = 0; i < de.N; i++){
+        x[i] = i;
+        y[i] = de.Kdef(i * de.theta);
+        if(y[i] > maxY) maxY = y[i];
+        if(y[i] < minY) minY = y[i];
+    }
+    ui->widget_KDef->xAxis->setRange(0, res.size());//Для оси Ox
+    ui->widget_KDef->yAxis->setRange(minY/2, maxY*1.2);//Для оси Oy
+    ui->widget_KDef->xAxis->setLabel("Номер точки  по длине очага");
+    ui->widget_KDef->yAxis->setLabel("МН/м^2");
+    ui->widget_KDef->addGraph();
+    ui->widget_KDef->graph(0)->setData(x, y);
+    ui->widget_KDef->graph(0)->setPen(QPen(Qt::red));
+    ui->widget_KDef->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 70)));
+    ui->widget_KDef->graph(0)->setName("Сопротивление деформации");
+
+    ui->widget_KDef->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+
+    ui->widget_KDef->legend->setVisible(true);
+    ui->widget_KDef->legend->setBrush(QBrush(QColor(255,255,255,150)));
+    ui->widget_KDef->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
+
+    ui->widget_KDef->replot();
+
+    //график tauCont;
+    x.resize(de.N), y.resize(de.N); //Массивы координат точек
+    ui->widget_tauCont->clearGraphs();
+    maxY = 0, minY = 1e90;
+
+    for (int i = 0; i < de.N; i++){
+        x[i] = i;
+        y[i] = de.tauContAbs[i];
+        if(y[i] > maxY) maxY = y[i];
+        if(y[i] < minY) minY = y[i];
+    }
+    ui->widget_tauCont->xAxis->setRange(0, res.size());//Для оси Ox
+    ui->widget_tauCont->yAxis->setRange(minY/2, maxY*1.2);//Для оси Oy
+    ui->widget_tauCont->xAxis->setLabel("Номер точки  по длине очага");
+    ui->widget_tauCont->yAxis->setLabel("МН/м^2");
+    ui->widget_tauCont->addGraph();
+    ui->widget_tauCont->graph(0)->setData(x, y);
+    ui->widget_tauCont->graph(0)->setPen(QPen(Qt::red));
+    ui->widget_tauCont->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 70)));
+    ui->widget_tauCont->graph(0)->setName("Касательное давление");
+
+    for (int i = 0; i < de.N; i++){
+        x[i] = i;
+        y[i] = de.tauShear[i];
+        if(y[i] > maxY) maxY = y[i];
+        if(y[i] < minY) minY = y[i];
+    }
+    ui->widget_tauCont->addGraph();
+    ui->widget_tauCont->graph(1)->setData(x, y);
+    ui->widget_tauCont->graph(1)->setPen(QPen(Qt::cyan));
+    ui->widget_tauCont->graph(1)->setBrush(QBrush(QColor(0, 255, 255, 70)));
+    ui->widget_tauCont->graph(1)->setName("Предел текучести");
+
+    ui->widget_tauCont->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+
+    ui->widget_tauCont->legend->setVisible(true);
+    ui->widget_tauCont->legend->setBrush(QBrush(QColor(255,255,255,150)));
+    ui->widget_tauCont->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
+
+    ui->widget_tauCont->replot();
+
+    //график температуры
+    int index = res.size() - 1, Mlast = de.MUpdate(de.getFocus().phi_max, de.h);
+    x.resize(de.Mcont+1);
+    y.resize(de.Mcont+1);
+    ui->widget_T->clearGraphs();
+    maxY = 0, minY = 1e90;
+    for (int i = 0; i <= de.Mcont; i++){
+        x[i] = i;
+        y[i] = res[index][i];
+        if(y[i] > maxY) maxY = y[i];
+        if(y[i] < minY) minY = y[i];
+    }
+    ui->widget_T->addGraph();
+    ui->widget_T->graph(0)->setData(x, y);
+    ui->widget_T->graph(0)->setPen(QPen(Qt::cyan));
+    ui->widget_T->graph(0)->setBrush(QBrush(QColor(0, 255, 255, 70)));
+    ui->widget_T->graph(0)->setName("Валок");
+
+    x.resize(Mlast - de.Mcont);
+    y.resize(Mlast - de.Mcont);
+    for (int i = 0; i < Mlast - de.Mcont; i++){
+        x[i] = i + de.Mcont;
+        y[i] = res[index][i + de.Mcont];
+        if(y[i] > maxY) maxY = y[i];
+        if(y[i] < minY) minY = y[i];
+    }
+    ui->widget_T->addGraph();
+    ui->widget_T->graph(1)->setData(x, y);
+    ui->widget_T->graph(1)->setPen(QPen(Qt::red));
+    ui->widget_T->graph(1)->setBrush(QBrush(QColor(255, 0, 0, 70)));
+    ui->widget_T->graph(1)->setName("Полоса");
+
+    ui->widget_T->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+
+    ui->widget_T->legend->setVisible(true);
+    ui->widget_T->legend->setBrush(QBrush(QColor(255,255,255,150)));
+    ui->widget_T->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignLeft|Qt::AlignTop);
+
+    ui->widget_T->xAxis->setRange(0, Mlast);//Для оси Ox
+    ui->widget_T->yAxis->setRange(minY/2, maxY*1.2);//Для оси Oy
+    ui->widget_T->xAxis->setLabel("Номер точки в глубину");
+    ui->widget_T->yAxis->setLabel("°C");
+    ui->widget_T->replot();
 
 //    QImage heatGraph(QSize(ui->labelforpicture->width(),ui->labelforpicture->height()), QImage::Format_RGB32);
 //    double val = 0;
@@ -182,6 +312,7 @@ void MainWindow::onClick(){
                               "Шаг по phi: " + QString::number(de.theta)
                               );
     msgBox.setDetailedText(info);
+    msgBox.setStandardButtons(QMessageBox::Close);
     msgBox.exec();
 }
 
