@@ -1,4 +1,4 @@
 Makefile*
 debug/*
 release/*
-*.user
+*.use*

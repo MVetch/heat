@@ -85,7 +85,6 @@ void MainWindow::onClick(){
 
     //график q();
     QVector<double> x(de.N), y(de.N); //Массивы координат точек
-    ui->widget_q->clearGraphs();
     double maxY = 0, minY = 1e90;
 
     for (int i = 0; i < de.N; i++){
@@ -94,24 +93,14 @@ void MainWindow::onClick(){
         if(y[i] > maxY) maxY = y[i];
         if(y[i] < minY) minY = y[i];
     }
-    ui->widget_q->xAxis->setRange(0, res.size());//Для оси Ox
-    ui->widget_q->yAxis->setRange(minY/2, maxY*1.2);//Для оси Oy
-    ui->widget_q->xAxis->setLabel("Номер точки  по длине очага");
-    ui->widget_q->yAxis->setLabel("Вт/м^2");
-    ui->widget_q->addGraph();
-    ui->widget_q->graph(0)->setData(x, y);
-    ui->widget_q->graph(0)->setPen(QPen(Qt::red));
-    ui->widget_q->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 70)));
-    ui->widget_q->graph(0)->setName("Тепловой поток");
-
-    ui->widget_q->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-    //ui->widget_q->axisRects().at(0)->setRangeDrag(Qt::Vertical);
-
-    ui->widget_q->legend->setVisible(true);
-    ui->widget_q->legend->setBrush(QBrush(QColor(255,255,255,150)));
-    ui->widget_q->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignRight|Qt::AlignTop);
-
-    ui->widget_q->replot();
+    buildPlot(
+                *ui->widget_q,
+                QVector<Plot>(1, Plot(x, y, QString("Тепловой поток"))),
+                QPair<double, double>(0, de.N-1),
+                QPair<double, double>(minY, maxY),
+                QString("Номер точки  по длине очага"),
+                QString("Вт/м^2")
+                );
 
     //график px();
     x.resize(de.N), y.resize(de.N); //Массивы координат точек
@@ -257,48 +246,6 @@ void MainWindow::onClick(){
     ui->widget_T->yAxis->setLabel("°C");
     ui->widget_T->replot();
 
-//    QImage heatGraph(QSize(ui->labelforpicture->width(),ui->labelforpicture->height()), QImage::Format_RGB32);
-//    double val = 0;
-
-//    double max = res[0][0], min = res[0][0];
-//    for(int i = 0; i < res.size(); i++){
-//        for(int j = 0; j < res[i].size(); j++){
-//            if(max < res[i][j]) max = res[i][j];
-//            if(min > res[i][j]) min = res[i][j];
-//        }
-//    }
-//    double Xc, Yc;
-
-//    int _i, _j;
-//    //double h = de.h;
-//    //картинка в полярных координатах
-//    QColor color;
-//    double r_max = (focus.r_max - R + focus.getRoll().countmmToHeat());
-//    for (int i = 0; i < heatGraph.width(); i++){
-//        _i = (double)(i*res.size())/heatGraph.width();
-//        angle = (double)(i*focus.phi_max)/heatGraph.width();
-//        //r_max = focus.maxR(angle) - R + focus.getRoll().countmmToHeat();
-
-//        for (int j = 0; j < heatGraph.height(); j++){
-//            _j =  (double)(j*de.MUpdate(angle, de.h))/heatGraph.height();
-//            val = (res[_i][_j] - min)/(max - min);
-//            Yc = Y((_j*de.h + R - focus.getRoll().countmmToHeat())*((double)heatGraph.width() /focus.r_max), angle-focus.phi_max)+focus.length*((double)heatGraph.height()/focus.r_max);
-//            Xc = X((_j*de.h + R - focus.getRoll().countmmToHeat())*((double)heatGraph.height()/focus.r_max), angle-focus.phi_max);
-//            color = QColor(255*val,//255*val,
-//                           0,
-//                           255*(1-val),
-//                           255
-//                          );
-//            heatGraph.setPixelColor(Yc,Xc,color);
-//            heatGraph.setPixelColor(qMax(Yc-1,0.0),Xc,color);
-//            heatGraph.setPixelColor(Yc,qMax(Xc-1,0.0),color);
-//            heatGraph.setPixelColor(qMin(Yc+1,(double)heatGraph.width()),Xc,color);
-//            heatGraph.setPixelColor(Yc,qMin(Xc,(double)heatGraph.height()),color);
-//        }
-//    }
-
-//    ui->labelforpicture->setPixmap(QPixmap::fromImage(heatGraph));
-
     QMessageBox msgBox;
 
     msgBox.setText("Посчиталось!");
@@ -326,4 +273,44 @@ double MainWindow::Y(double r, double phi){
 void MainWindow::on_pushButton_clicked()
 {
 
+}
+void MainWindow::buildPlot(
+        QCustomPlot& widget,
+        QVector<Plot> plots,
+        QPair<double, double> rx,
+        QPair<double, double> ry,
+        QString lx,
+        QString ly,
+        bool legendAlignLeft,
+        bool legendAlignTop
+        )
+{
+    widget.clearGraphs();
+    widget.xAxis->setRange(rx.first, rx.second);//Для оси Ox
+    widget.yAxis->setRange(ry.first, ry.second);//Для оси Oy
+    widget.xAxis->setLabel(lx);
+    widget.yAxis->setLabel(ly);
+    for(int i = 0; i < plots.size(); i++){
+        widget.addGraph();
+        widget.graph(i)->setData(plots[i].x, plots[i].y);
+        widget.graph(i)->setPen(QPen(colors[i % 9]));
+        widget.graph(i)->setBrush(QBrush(
+                                        QColor(
+                                            colors[i % 9].red(),
+                                            colors[i % 9].green(),
+                                            colors[i % 9].blue(),
+                                            70
+                                        )
+                                      )
+                                  );
+        widget.graph(i)->setName(plots[i].name);
+    }
+
+    widget.setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+
+    widget.legend->setVisible(true);
+    widget.legend->setBrush(QBrush(QColor(255,255,255,150)));
+    widget.axisRect()->insetLayout()->setInsetAlignment(0, legendAlignLeft?Qt::AlignRight:Qt::AlignRight|legendAlignTop?Qt::AlignTop:Qt::AlignBottom);
+
+    widget.replot();
 }

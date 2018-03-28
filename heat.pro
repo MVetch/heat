@@ -30,7 +30,8 @@ SOURCES += \
     diffequation.cpp \
     focus.cpp \
     roll.cpp \
-    strip.cpp
+    strip.cpp \
+    plot.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -38,7 +39,8 @@ HEADERS += \
     diffequation.h \
     focus.h \
     roll.h \
-    strip.h
+    strip.h \
+    plot.h
 
 FORMS += \
         mainwindow.ui
