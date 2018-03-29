@@ -17,6 +17,7 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::onClick(){
+    time.start();
     double R = ui->lineRad->text().toDouble()/1000;
     Roll roll(
                 R,
@@ -34,14 +35,16 @@ void MainWindow::onClick(){
                 ui->rho_p_edit->text().toDouble(),
                 ui->c_p_edit->text().toDouble()
                 );
-    Focus focus(h_b, h_a, roll, strip);
+    Focus focus(h_b, h_a, roll, strip, 0.000025, 2.0);
 
     diffEquation de(
                 M,
                 N,
                 focus
                 );
+    double timeDifur = time.elapsed();
     de.solve();
+    timeDifur = (double)(time.elapsed() - timeDifur)/1000;
     QVector<QVector<double>> res = de.getResult();
 
     double angle = 0;
@@ -188,7 +191,9 @@ void MainWindow::onClick(){
                               "t ∈ [0; " + QString::number(focus.phi_max / focus.getRoll().getR() / 73 * 60) +"] c\n"+
                               "Номер точки стыка: " + QString::number(de.Mcont + 1)+"\n"+
                               "Шаг по r: " + QString::number(de.h)+"\n"+
-                              "Шаг по phi: " + QString::number(de.theta)
+                              "Шаг по phi: " + QString::number(de.theta)+"\n"+
+                              "Считалось " + QString::number((double)time.elapsed()/1000) + "c."+"\n"+
+                              "Решалось " + QString::number(timeDifur) + "c."
                               );
     msgBox.setDetailedText(info);
     msgBox.setStandardButtons(QMessageBox::Close);
@@ -242,7 +247,14 @@ void MainWindow::buildPlot(
 
     widget.legend->setVisible(true);
     widget.legend->setBrush(QBrush(QColor(255,255,255,150)));
-    widget.axisRect()->insetLayout()->setInsetAlignment(0, legendAlignLeft?Qt::AlignLeft:Qt::AlignRight|legendAlignTop?Qt::AlignTop:Qt::AlignBottom);
+    widget.axisRect()->insetLayout()->setInsetAlignment(0,
+                                                        (legendAlignLeft?
+                                                            Qt::AlignLeft:
+                                                            Qt::AlignRight)|
+                                                                (legendAlignTop?
+                                                                Qt::AlignTop:
+                                                                Qt::AlignBottom)
+                                                        );
 
     widget.replot();
 }

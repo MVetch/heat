@@ -52,6 +52,7 @@ private:
                 Qt::lightGray,
                 Qt::darkCyan
     });
+    QTime time;
 };
 
 #endif // MAINWINDOW_H

@@ -1,6 +1,7 @@
 #ifndef DIFFEQUATION_H
 #define DIFFEQUATION_H
 
+#include <QTime>
 #include "focus.h"
 #include "roll.h"
 #include "qmath.h"

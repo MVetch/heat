@@ -31,7 +31,8 @@ SOURCES += \
     focus.cpp \
     roll.cpp \
     strip.cpp \
-    plot.cpp
+    plot.cpp \
+    scale.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -40,7 +41,8 @@ HEADERS += \
     focus.h \
     roll.h \
     strip.h \
-    plot.h
+    plot.h \
+    scale.h
 
 FORMS += \
         mainwindow.ui
