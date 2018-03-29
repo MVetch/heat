@@ -55,7 +55,7 @@ diffEquation::diffEquation(
     }
     for(int i = Nneutr; i < N; i++){
         temp = -qMin(tauContAbs[i], tauShear[i]);
-        tauCont.push_back(temp);
+        tauCont.push_back(-temp);
         if(temp == -tauContAbs[i] && NForward == 0) NForward = i-1;
     }
 }

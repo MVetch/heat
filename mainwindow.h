@@ -40,18 +40,18 @@ private:
             QString ly,
             bool legendAlignLeft = false,
             bool legendAlignTop = true
-            );
-    const QColor* colors = new QColor [9]{
-                QColor(Qt::red),
-                QColor(Qt::cyan),
-                QColor(Qt::green),
-                QColor(Qt::black),
-                QColor(Qt::yellow),
-                QColor(Qt::darkMagenta),
-                QColor(Qt::darkBlue),
-                QColor(Qt::lightGray),
-                QColor(Qt::darkCyan)
-                };
+    );
+    const QVector<QColor>* colors = new QVector<QColor>({
+                Qt::red,
+                Qt::cyan,
+                Qt::green,
+                Qt::black,
+                Qt::yellow,
+                Qt::darkMagenta,
+                Qt::darkBlue,
+                Qt::lightGray,
+                Qt::darkCyan
+    });
 };
 
 #endif // MAINWINDOW_H
