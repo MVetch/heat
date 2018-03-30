@@ -62,6 +62,13 @@ diffEquation::diffEquation(
 
 diffEquation::~diffEquation(){
     //delete u;
+    u.clear();
+    tauCont.clear();
+    tauContAbs.clear();
+    tauShear.clear();
+    px1.clear();
+    px0.clear();
+    pxCont.clear();
 }
 
 double diffEquation::f(double phi){
@@ -103,19 +110,17 @@ void diffEquation::solve(){
     double a_wr = lambda_wr / (rho_wr * c_wr);
     double a_s  = lambda_s  / (rho_s  * c_s );
     double lambda_sc = focus.getScale().lambda;
-    double a_sc = lambda_sc / (rho_s  * c_s );
 
     u.resize(N+1);
     QVector<double> lambda(M-1), delta(M-1), r(M-1);
-    double a = 0;
     u[0].resize(M-2);
     double angle = 0;
     double Mcur = 0;
 
-    double beta1 = (lambda_wr * focus.getScale().thickness) / (lambda_wr * focus.getScale().thickness + lambda_sc * h);
-    double beta2 = (lambda_sc * h) / (lambda_wr * focus.getScale().thickness + lambda_sc * h);
-    double beta3 = (lambda_sc * h) / (lambda_s  * focus.getScale().thickness + lambda_sc * h);
-    double beta4 = (lambda_s  * focus.getScale().thickness) / (lambda_s  * focus.getScale().thickness + lambda_sc * h);
+    beta1 = (lambda_wr * focus.getScale().thickness) / (lambda_wr * focus.getScale().thickness + lambda_sc * h);
+    beta2 = (lambda_sc * h) / (lambda_wr * focus.getScale().thickness + lambda_sc * h);
+    beta3 = (lambda_sc * h) / (lambda_s  * focus.getScale().thickness + lambda_sc * h);
+    beta4 = (lambda_s  * focus.getScale().thickness) / (lambda_s  * focus.getScale().thickness + lambda_sc * h);
 
     double bm_s = -theta * a_s / (h * h);
     double cm_s1 = 1 +     theta * a_s / (h * h);
@@ -133,8 +138,6 @@ void diffEquation::solve(){
     double bm_mcontp2 = bm_s * beta1 * beta3 / (1 - beta2 * beta3);
     double cm_mcontp2 = cm_s2 - (theta * a_s * beta4) / (h * h * (1 - beta2 * beta3));
     double dm_mcontp2 = dm_s;
-
-    double bm, cm, dm;
 
     for(int j = 0; j < M - 2; j++) // значения на нулевом слое
     {
@@ -168,27 +171,22 @@ void diffEquation::solve(){
         if(angle <= focus.beta)
             r[Mcur-1] += theta * a_s * u[0][Mcur-1] / (h * h);//умножить на начальное значение температуры в глубину полосы
 
-        for(int j = 0; j < Mcur; j++) {
-            if(j < Mcont-1) {
-                bm = bm_wr;
-                cm = cm_wr;
-                dm = dm_wr;
-            } else if (j == Mcont - 1) {
-                bm = bm_mcontm1;
-                cm = cm_mcontm1;
-                dm = dm_mcontm1;
-            } else if (j == Mcont) {
-                bm = bm_mcontp2;
-                cm = cm_mcontp2;
-                dm = dm_mcontp2;
-            } else {
-                bm = bm_s;
-                cm = cm_s2;
-                dm = dm_s;
-            }
-            delta [j] = - dm / (cm + bm * (j == 0 ? 0 : delta[j-1]));
-            lambda[j] = (r[j] - bm * (j == 0 ? 0 : lambda[j-1])) / (cm + bm * (j == 0 ? 0 : delta[j-1]));
+        for(int j = 0; j < Mcont-1; j++) {
+            delta [j] = - dm_wr / (cm_wr + bm_wr * (j == 0 ? 0 : delta[j-1]));
+            lambda[j] = (r[j] - bm_wr * (j == 0 ? 0 : lambda[j-1])) / (cm_wr + bm_wr * (j == 0 ? 0 : delta[j-1]));
         }
+
+        delta [Mcont - 1] = - dm_mcontm1 / (cm_mcontm1 + bm_mcontm1 * delta[Mcont - 2]);
+        lambda[Mcont - 1] = (r[Mcont - 1] - bm_mcontm1 * lambda[Mcont - 2]) / (cm_mcontm1 + bm_mcontm1 * delta[Mcont - 2]);
+
+        delta [Mcont] = - dm_mcontp2 / (cm_mcontp2 + bm_mcontp2 * delta[Mcont - 1]);
+        lambda[Mcont] = (r[Mcont] - bm_mcontp2 * lambda[Mcont - 1]) / (cm_mcontp2 + bm_mcontp2 * delta[Mcont - 1]);
+
+        for(int j = Mcont+1; j < Mcur - 1; j++) {
+            delta [j] = - dm_s / (cm_s2 + bm_s * delta[j-1]);
+            lambda[j] = (r[j] - bm_s * lambda[j-1]) / (cm_s2 + bm_s * delta[j-1]);
+        }
+
         delta [Mcur - 1] = 0;
         lambda[Mcur - 1] = (r[Mcur - 1] - bm_s * lambda[Mcur - 2]) / (cm_s1 + bm_s * delta[Mcur - 2]);
 
@@ -198,6 +196,9 @@ void diffEquation::solve(){
         if(angle >= focus.beta)
             u[i+1][Mcur] = u[i+1][Mcur-1];
     }
+    lambda.clear();
+    r.clear();
+    delta.clear();
 }
 
 QVector<QVector<qreal>> diffEquation::getResult()

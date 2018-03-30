@@ -17,7 +17,7 @@ public:
     QVector<QVector<double>> getResult();
     double getResult(int i, int j);
     Focus getFocus();
-    int MUpdate(double,double);
+    int MUpdate(double angle, double rstep);
     double q(int i);
     double f(double);
     double Kdef(double phi);
@@ -29,6 +29,7 @@ public:
     QVector<double> px0;
     QVector<double> px1;
     QVector<double> pxCont;
+    double beta1, beta2, beta3, beta4;
 
 private:
     Focus focus;
