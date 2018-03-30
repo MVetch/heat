@@ -100,99 +100,99 @@ void diffEquation::solve(){
     double rho_s = focus.getStrip().getRho();
     double c_s = focus.getStrip().getC();
 
-    double a_wr = lambda_wr/(rho_wr*c_wr);
-    double a_s = lambda_s/(rho_s*c_s);
+    double a_wr = lambda_wr / (rho_wr * c_wr);
+    double a_s  = lambda_s  / (rho_s  * c_s );
     double lambda_sc = focus.getScale().lambda;
-    double a_sc = lambda_sc/(rho_s*c_s);
+    double a_sc = lambda_sc / (rho_s  * c_s );
 
     u.resize(N+1);
-    QVector<double> d(M-1), c(M-1), b(M-1), lambda(M-1), delta(M-1), r(M-1);
+    QVector<double> lambda(M-1), delta(M-1), r(M-1);
     double a = 0;
-    u[0].resize(M);
+    u[0].resize(M-2);
     double angle = 0;
     double Mcur = 0;
 
-    double beta1 = (lambda_wr/h)/(lambda_wr/h + lambda_sc/focus.getScale().thickness);
-    double beta2 = (lambda_sc/focus.getScale().thickness)/(lambda_wr/h + lambda_sc/focus.getScale().thickness);
-    double beta3 = (lambda_sc/focus.getScale().thickness)/(lambda_s /h + lambda_sc/focus.getScale().thickness);
-    double beta4 = (lambda_s/h)/(lambda_s/h + lambda_sc/focus.getScale().thickness);
+    double beta1 = (lambda_wr * focus.getScale().thickness) / (lambda_wr * focus.getScale().thickness + lambda_sc * h);
+    double beta2 = (lambda_sc * h) / (lambda_wr * focus.getScale().thickness + lambda_sc * h);
+    double beta3 = (lambda_sc * h) / (lambda_s  * focus.getScale().thickness + lambda_sc * h);
+    double beta4 = (lambda_s  * focus.getScale().thickness) / (lambda_s  * focus.getScale().thickness + lambda_sc * h);
 
-    double b_s = -theta * a_s / (h*h);
-    double cm_s = 1 + 2 * theta * a_wr / (h*h);
-    double d_s = -theta * a_s / (h*h);
+    double bm_s = -theta * a_s / (h * h);
+    double cm_s1 = 1 +     theta * a_s / (h * h);
+    double cm_s2 = 1 + 2 * theta * a_s / (h * h);
+    double dm_s = -theta * a_s / (h * h);
 
-    double b_wr = -theta * a_wr / (h*h);
-    double cm_wr = 1 + 2 * theta * a_wr / (h*h);
-    double d_wr = -theta * a_wr / (h*h);
+    double bm_wr = -theta * a_wr / (h * h);
+    double cm_wr = 1 + 2 * theta * a_wr / (h * h);
+    double dm_wr = -theta * a_wr / (h * h);
 
-    double b_mcontm1 = b_wr;
-    double c_mcontm1 = c_wr - (theta * a_wr*beta1)/(h*h*(1-beta2*beta3));
-    double d_mcontm1 = d_s * beta2 * beta4 / (h*h*(1-beta2*beta3));
+    double bm_mcontm1 = bm_wr;
+    double cm_mcontm1 = cm_wr - (theta * a_wr * beta1) / (h * h * (1 - beta2 * beta3));
+    double dm_mcontm1 = dm_wr  * beta2 * beta4 / (1 - beta2 * beta3);
 
-    double b_mcontp2 = b_wr * beta1 * beta3 / (h*h*(1-beta2*beta3));
-    double c_mcontp2 = c_s - (theta * a_s * beta4)/(h*h*(1-beta2*beta3));
-    double d_mcontp2 = d_s;
+    double bm_mcontp2 = bm_s * beta1 * beta3 / (1 - beta2 * beta3);
+    double cm_mcontp2 = cm_s2 - (theta * a_s * beta4) / (h * h * (1 - beta2 * beta3));
+    double dm_mcontp2 = dm_s;
 
-    double b, cm, d;
+    double bm, cm, dm;
 
-    for(int j = 0; j < M; j++) // значения на нулевом слое
+    for(int j = 0; j < M - 2; j++) // значения на нулевом слое
     {
         if(j < Mcont+1)
-            u[0][j] = focus.getRoll().initT(j * h);//температура вглубь валка
+            u[0][j] = focus.getRoll ().initT(j * h);//температура вглубь валка
         else
             u[0][j] = focus.getStrip().initT(j * h);//температура в полосе
     }
-    u[0][Mcont] = (u[0][Mcont-1] + u[0][Mcont+1])/2;
+    //u[0][Mcont] = (u[0][Mcont-1] + u[0][Mcont+1]) / 2;
     for(int i = 0; i < N; i++){ // значения на остальных слоях
-        angle = i*theta;
-        u[i+1].resize(M-2);
-        Mcur = qMax(MUpdate(angle, h)-1, Mcont+1)-2;
+        angle = i * theta;
+        u[i+1].resize(M - 2);
+        Mcur = qMax(MUpdate(angle, h) - 1 - 2, Mcont);
 
         // граничные условия
         u[i+1][0] = focus.getRoll().initT(0); //температура в центре валка
-        for(int j = Mcur; j < M-2; j++){
+        for(int j = Mcur; j < M - 2; j++){
             u[i+1][j] = focus.getStrip().initT(j * h);
         }
-        r[j] = u[i][j];
         for(int j = 0; j < Mcur; j++){
+            r[j] = u[i][j];
             if(j >= Mcont){
-                r[j] += theta*f(angle);//расчет правой части СЛАУ
+                r[j] += theta * f(angle);//расчет правой части СЛАУ
             }
         }
-        r[Mcont - 1] += q(i) * theta * a_wr / (h * h);
-        r[Mcont] += q(i) * theta * a_s * beta3 / (h * h * (1 - beta2 * beta3));
-        //r[Mcont+1] += theta*a_s / (h * lambda_s / 2);
-        //c[Mcont] = 0;
-        //c[Mcont+1] = 0;
+        r[Mcont - 1] += q(i) * theta * a_wr * focus.getScale().thickness         / (h * (lambda_wr * focus.getScale().thickness + lambda_sc * h)                      );
+        r[Mcont]     += q(i) * theta * a_s  * focus.getScale().thickness * beta3 / (h * (lambda_s  * focus.getScale().thickness + lambda_sc * h) * (1 - beta2 * beta3));
 
-        r[0] += theta * a_wr / (h*h) * focus.getRoll().initT(0); //умножить на t в центре валка
+        r[0] += theta * a_wr / (h * h) * focus.getRoll().initT(0); //умножить на t в центре валка
 
         if(angle <= focus.beta)
-            r[Mcur-1] += theta*a_s*u[0][Mcur-1]/(h*h);//умножить на начальное значение температуры в глубину полосы
+            r[Mcur-1] += theta * a_s * u[0][Mcur-1] / (h * h);//умножить на начальное значение температуры в глубину полосы
 
-        for(int j = 0; j < Mcur; j++){
-            if(j < Mcont-1){
-                b = b_wr;
-                c = c_wr;
-                d = d_wr;
+        for(int j = 0; j < Mcur; j++) {
+            if(j < Mcont-1) {
+                bm = bm_wr;
+                cm = cm_wr;
+                dm = dm_wr;
             } else if (j == Mcont - 1) {
-                b = b_mcontm1;
-                c = c_mcontm1;
-                d = d_mcontm1;
+                bm = bm_mcontm1;
+                cm = cm_mcontm1;
+                dm = dm_mcontm1;
             } else if (j == Mcont) {
-                b = b_mcontp2;
-                c = c_mcontp2;
-                d = d_mcontp2;
+                bm = bm_mcontp2;
+                cm = cm_mcontp2;
+                dm = dm_mcontp2;
             } else {
-                b = b_s;
-                c = c_s;
-                d = d_s;
+                bm = bm_s;
+                cm = cm_s2;
+                dm = dm_s;
             }
-            delta[j] = - d / (c + b * (j==0?0:delta[j-1]));
-            lambda[j] = (r - b * (j==0?0:lambda[j-1]))/ (c + b * (j==0?0:delta[j-1]));
+            delta [j] = - dm / (cm + bm * (j == 0 ? 0 : delta[j-1]));
+            lambda[j] = (r[j] - bm * (j == 0 ? 0 : lambda[j-1])) / (cm + bm * (j == 0 ? 0 : delta[j-1]));
         }
-        delta[Mcur - 1] = 0;
-        for(int j = Mcur-1; j > 0; j--){
+        delta [Mcur - 1] = 0;
+        lambda[Mcur - 1] = (r[Mcur - 1] - bm_s * lambda[Mcur - 2]) / (cm_s1 + bm_s * delta[Mcur - 2]);
+
+        for(int j = Mcur - 1; j > 0; j--){
             u[i+1][j] = delta[j] * u[i+1][j+1] + lambda[j];
         }
         if(angle >= focus.beta)

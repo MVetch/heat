@@ -58,7 +58,7 @@ void MainWindow::onClick(){
     QString info = "";
     for(int i = 0; i < res.size(); i++){
         angle = i*de.theta;
-        Mcur = de.MUpdate(angle, de.h);
+        Mcur = qMax(de.MUpdate(angle, de.h) - 1 - 2, de.Mcont);
         info+="phi = " + QString::number(angle, 'f', 5) + "рад. / " +
                          QString::number(angle*180/M_PI, 'f', 5) + "°\t r = " +
                          QString::number(focus.maxR(angle), 'f', 5)+ ";\n";
@@ -105,13 +105,12 @@ void MainWindow::onClick(){
     maxY = 0, minY = 1e90;
 
     for (int i = 0; i < de.N; i++){
-        y[i] = de.pxCont[i];
-        if(y[i] > maxY) maxY = y[i];
-        if(y[i] < minY) minY = y[i];
+        if(de.pxCont[i] > maxY) maxY = de.pxCont[i];
+        if(de.pxCont[i] < minY) minY = de.pxCont[i];
     }
     buildPlot(
                 *ui->widget_px,
-                QVector<Plot>({Plot(x, y, QString("Нормальное давление"))}),
+                QVector<Plot>({Plot(x, de.pxCont, QString("Нормальное давление"))}),
                 QPair<double, double>(0, de.N-1),
                 QPair<double, double>(minY/2, maxY*1.2),
                 QString("Номер точки  по длине очага"),
@@ -163,9 +162,9 @@ void MainWindow::onClick(){
     }
     QVector<Plot> plotsTemp({Plot(x, y, QString("Валок"))});
 
-    x.resize(de.M - de.Mcont);
-    y.resize(de.M - de.Mcont);
-    for (int i = 0; i < de.M - de.Mcont; i++){
+    x.resize(de.MUpdate(focus.phi_max, de.h)-2 - de.Mcont);
+    y.resize(de.MUpdate(focus.phi_max, de.h)-2 - de.Mcont);
+    for (int i = 0; i < de.MUpdate(focus.phi_max, de.h) - 2 - de.Mcont; i++){
         x[i] = i + de.Mcont;
         y[i] = res[index][i + de.Mcont];
         if(y[i] > maxY) maxY = y[i];
@@ -175,7 +174,7 @@ void MainWindow::onClick(){
     buildPlot(
                 *ui->widget_T,
                 plotsTemp,
-                QPair<double, double>(0, de.M),
+                QPair<double, double>(0, de.MUpdate(focus.phi_max, de.h)-2),
                 QPair<double, double>(minY/2, maxY*1.2),
                 QString("Номер точки в глубину"),
                 QString("°C")
