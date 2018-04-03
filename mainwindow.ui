@@ -114,6 +114,18 @@
       <height>291</height>
      </rect>
     </property>
+    <property name="maximumSize">
+     <size>
+      <width>391</width>
+      <height>16777215</height>
+     </size>
+    </property>
+    <property name="wordWrap">
+     <bool>false</bool>
+    </property>
+    <property name="cornerButtonEnabled">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QLineEdit" name="thetaStep">
     <property name="geometry">

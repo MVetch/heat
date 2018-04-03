@@ -50,24 +50,31 @@ void MainWindow::onClick(){
     ui->tableWidget->setRowCount(res.size());
     ui->tableWidget->setColumnCount(de->M);
 
-    int Mcur = 0; // число шагов по x и точка контакта
+    int Mcur = 0;
     QString info = "";
     for(int j = 0; j < de->Mcont; j++){
         ui->tableWidget->setItem(0, j, new QTableWidgetItem(QString::number(res[0][j])));
         ui->tableWidget->item(0, j)->setBackground(Qt::cyan);
+        ui->tableWidget->setColumnWidth(j, 50);
+    }
+    for(int j = de->Mcont; j < de->M; j++){
+        ui->tableWidget->setColumnWidth(j, 50);
     }
     for(int i = 1; i < res.size(); i++){
-        angle = i*de->theta;
+        angle = (i - 1) * de->theta;
         Mcur = qMax(de->MUpdate(angle, de->h) - 1 - 2, de->Mcont);
         info+="phi = " + QString::number(angle, 'f', 5) + "рад. / " +
                          QString::number(angle*180/M_PI, 'f', 5) + "°\t r = " +
                          QString::number(focus.maxR(angle), 'f', 5)+ ";\n";
         for(int j = 0; j < de->Mcont; j++){
             ui->tableWidget->setItem(i, j, new QTableWidgetItem(QString::number(res[i][j])));
-            ui->tableWidget->item(i, j)->setBackground(Qt::cyan);
+            if((i-1 == qRound(focus.beta/de->theta)))
+                ui->tableWidget->item(i, j)->setBackground(Qt::green);
+            else
+                ui->tableWidget->item(i, j)->setBackground(Qt::cyan);
         }
 
-        ui->tableWidget->setItem(i, de->Mcont,    new QTableWidgetItem(QString::number(
+        ui->tableWidget->setItem(i, de->Mcont,     new QTableWidgetItem(QString::number(
                                                                             de->beta1 / (1 - de->beta2 * de->beta3) * res[i][de->Mcont - 1] +
                                                                             de->beta2 * de->beta4 / (1 - de->beta2 * de->beta3) * res[i][de->Mcont] +
                                                                             de->q(i-1) * focus.getScale().thickness * de->h / (focus.getRoll().getLambda() * focus.getScale().thickness + focus.getScale().lambda * de->h)
@@ -81,13 +88,16 @@ void MainWindow::onClick(){
                                                                        )));
         ui->tableWidget->item(i, de->Mcont + 1)->setBackground(Qt::darkMagenta);
 
-        for(int j = de->Mcont; j < Mcur; j++){
+        for(int j = de->Mcont; j <= Mcur; j++){
             ui->tableWidget->setItem(i, j + 2, new QTableWidgetItem(QString::number(res[i][j])));
-            ui->tableWidget->item(i, j + 2)->setBackground(Qt::red);
+            if((i-1 == qRound(focus.beta/de->theta)))
+                ui->tableWidget->item(i, j + 2)->setBackground(Qt::green);
+            else
+                ui->tableWidget->item(i, j + 2)->setBackground(Qt::red);
         }
     }
-    ui->tableWidget->resizeColumnsToContents();
-    ui->tableWidget->setHorizontalHeaderItem(de->Mcont, new QTableWidgetItem("Стык"));
+    //ui->tableWidget->resizeColumnsToContents();
+    ui->tableWidget->setHorizontalHeaderItem(de->Mcont,     new QTableWidgetItem("Стык"));
     ui->tableWidget->setHorizontalHeaderItem(de->Mcont + 1, new QTableWidgetItem("Окалина"));
 
     //===============================график q()===============================
@@ -160,27 +170,28 @@ void MainWindow::onClick(){
                 );
 
     //===============================график температуры===============================
-    int index = res.size() - 1;
-    x.resize(de->Mcont+1);
-    y.resize(de->Mcont+1);
-    maxY = 0, minY = 1e90;
-    for (int i = 0; i <= de->Mcont; i++){
-        x[i] = i;
-        y[i] = res[index][i];
-        if(y[i] > maxY) maxY = y[i];
-        if(y[i] < minY) minY = y[i];
-    }
-    QVector<Plot> plotsTemp({Plot(x, y, QString("Валок"))});
 
+    maxY = 0, minY = 1e90;
     x.resize(de->MUpdate(focus.phi_max, de->h)-2 - de->Mcont);
     y.resize(de->MUpdate(focus.phi_max, de->h)-2 - de->Mcont);
-    for (int i = 0; i < de->MUpdate(focus.phi_max, de->h) - 2 - de->Mcont; i++){
+    int index = res.size() - 1;
+    for (int i = 0; i < x.size(); i++){
         x[i] = i + de->Mcont;
         y[i] = res[index][i + de->Mcont];
         if(y[i] > maxY) maxY = y[i];
+    }
+    QVector<Plot> plotsTemp({Plot(x, y, QString("Полоса"))});
+
+    x.resize(de->Mcont+1);
+    y.resize(de->Mcont+1);
+    for (int i = 0; i <= de->Mcont; i++){
+        x[i] = i;
+        y[i] = res[index][i];
         if(y[i] < minY) minY = y[i];
     }
-    plotsTemp.push_back(Plot(x, y, QString("Полоса")));
+    plotsTemp.push_back(Plot(x, y, QString("Валок")));
+
+
     buildPlot(
                 *ui->widget_T,
                 plotsTemp,
