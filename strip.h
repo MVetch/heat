@@ -7,9 +7,9 @@ class Strip
 public:
     Strip();
     Strip(double width, double rho, double c, double lambda);
-    double getC(double T);
-    double getRho(double T);
-    double getLambda(double T);
+    double getC();
+    double getRho();
+    double getLambda();
     double initT(double r);
 private:
     double c;
