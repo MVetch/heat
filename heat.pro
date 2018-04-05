@@ -45,7 +45,8 @@ HEADERS += \
     scale.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    mainwindowphone.ui
 
 CONFIG += mobility
 MOBILITY = 

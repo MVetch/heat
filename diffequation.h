@@ -19,7 +19,7 @@ public:
     Focus getFocus();
     int MUpdate(double angle, double rstep);
     double q(int i);
-    double f(double);
+    double f(int i, int j);
     double Kdef(double phi);
     int M, N, Mcont;
     int NBack, NForward, Nneutr;
