@@ -15,6 +15,7 @@ public:
     ~diffEquation();
     void solve();
     QVector<QVector<double>> getResult();
+    QVector<double> getResult(int i);
     double getResult(int i, int j);
     Focus getFocus();
     int MUpdate(double angle, double rstep);

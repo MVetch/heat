@@ -140,7 +140,6 @@ void MainWindow::onClick(){
     maxY = 0, minY = 1e90;
 
     for (int i = 0; i < de->N; i++){
-        x[i] = (double)i / de->N * 1000;
         y[i] = de->Kdef(i * de->theta);
         if(y[i] > maxY) maxY = y[i];
         if(y[i] < minY) minY = y[i];
@@ -157,7 +156,6 @@ void MainWindow::onClick(){
     //===============================график tauCont===============================
     maxY = 0, minY = 1e90;
     for (int i = 0; i < de->N; i++){
-        x[i] = i;
         if(de->tauContAbs[i] > maxY) maxY = de->tauContAbs[i];
         if(de->tauContAbs[i] < minY) minY = de->tauContAbs[i];
     }// c tauShear не сверяю, потому что область показа функции все равно определяет только tauContAbs

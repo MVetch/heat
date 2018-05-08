@@ -74,8 +74,7 @@ double diffEquation::q(int i){
     double omegaSlip = Vwr * (focus.curH(Nneutr * theta) / focus.curH(i * theta) - 1);
 
     /*должно быть tauCont1, которое высчитывается по странной формуле*/
-    double q = qAbs(tauCont[i] * omegaSlip) * 1000000;
-    return q;
+    return qAbs(tauCont[i] * omegaSlip) * 1000000;
 }
 
 double diffEquation::Kdef(double phi){
@@ -105,7 +104,7 @@ void diffEquation::solve(){
     double lambda_sc = focus.getScale().lambda;
 
     u.resize(N+1);
-    QVector<double> lambda(M-3), delta(M-3), r(M-3);
+    QVector<double> lambda(M-4), delta(M-4), r(M-4);
     u[0].resize(M-2);
     double angle = 0;
     double Mcur = 0;
@@ -132,12 +131,13 @@ void diffEquation::solve(){
     double cm_mcontp2 = cm_s2 - (theta * a_s * beta4) / (h * h * (1 - beta2 * beta3));
     double dm_mcontp2 = dm_s;
 
-    for(int j = 0; j < M - 2; j++) // значения на нулевом слое
+    for(int j = 0; j < Mcont; j++) // значения на нулевом слое
     {
-        if(j < Mcont)
-            u[0][j] = focus.getRoll ().initT(j * h);//температура вглубь валка
-        else
-            u[0][j] = focus.getStrip().initT((j + 2) * h);//температура в полосе
+        u[0][j] = focus.getRoll ().initT(j * h);//температура вглубь валка
+    }
+    for(int j = Mcont; j < M - 2; j++) // значения на нулевом слое
+    {
+        u[0][j] = focus.getStrip().initT((j + 2) * h);//температура в полосе
     }
 
     for(int i = 0; i < N; i++){ // значения на остальных слоях
@@ -156,11 +156,11 @@ void diffEquation::solve(){
                 r[j] += theta * f(i, j + 1);//расчет правой части СЛАУ
             }
         }
-        //=========Mcont - 2==========//
+        //=========Mcont - 2 последняя точка валка==========//
         r[Mcont - 2] += q(i+1) * theta * a_wr * focus.getScale().thickness         / (h * (lambda_wr * focus.getScale().thickness + lambda_sc * h)                      );
         //=========/Mcont - 2==========//
 
-        //=========Mcont - 1==========//
+        //=========Mcont - 1 первая точка полосы==========//
         r[Mcont - 1] += q(i+1) * theta * a_s  * focus.getScale().thickness * beta3 / (h * (lambda_s  * focus.getScale().thickness + lambda_sc * h) * (1 - beta2 * beta3));
         //=========/Mcont - 1==========//
 
@@ -210,6 +210,10 @@ QVector<QVector<qreal>> diffEquation::getResult()
 double diffEquation::getResult(int i, int j)
 {
     return this->u[i][j];
+}
+QVector<double> diffEquation::getResult(int i)
+{
+    return this->u[i];
 }
 
 Focus diffEquation::getFocus()
