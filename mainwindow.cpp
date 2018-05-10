@@ -19,6 +19,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::onClick(){
     time.start();
+
     double R = ui->lineRad->text().toDouble()/1000;
     Roll roll(
                 R,
@@ -280,4 +281,10 @@ void MainWindow::buildPlot(
                                                         );
 
     widget.replot();
+}
+
+void MainWindow::on_openSettings_clicked()
+{
+    if (!settings->isVisible())
+        settings->show();
 }

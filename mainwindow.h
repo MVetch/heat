@@ -10,6 +10,7 @@
 #include "qcustomplot.h"
 #include "roll.h"
 #include "focus.h"
+#include "settings.h"
 
 namespace Ui {
 class MainWindow;
@@ -26,6 +27,7 @@ public:
 private slots:
     void onClick();
     void on_pushButton_clicked();
+    void on_openSettings_clicked();
 
 private:
     Ui::MainWindow *ui;

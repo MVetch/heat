@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "settings.h"
 #include <QApplication>
 #include <QTranslator>
 #include <QLibraryInfo>
@@ -25,6 +26,7 @@ int main(int argc, char *argv[])
     a.installTranslator(&myappTranslator);
     MainWindow w;
     w.show();
+
 
     return a.exec();
 }

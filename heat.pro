@@ -32,7 +32,8 @@ SOURCES += \
     roll.cpp \
     strip.cpp \
     plot.cpp \
-    scale.cpp
+    scale.cpp \
+    settings.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -42,11 +43,13 @@ HEADERS += \
     roll.h \
     strip.h \
     plot.h \
-    scale.h
+    scale.h \
+    settings.h
 
 FORMS += \
         mainwindow.ui \
-    mainwindowphone.ui
+    mainwindowphone.ui \
+    settings.ui
 
 CONFIG += mobility
 MOBILITY = 
