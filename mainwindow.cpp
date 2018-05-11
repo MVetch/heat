@@ -17,25 +17,32 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+QJsonObject MainWindow::loadSettings()
+{
+    QFile fsettigs(Settings::saveFileName);
+    fsettigs.open(QIODevice::ReadOnly);
+    return QJsonDocument(QJsonDocument::fromJson(fsettigs.readAll())).object();
+}
+
 void MainWindow::onClick(){
     time.start();
-
-    double R = ui->lineRad->text().toDouble()/1000;
+    QJsonObject settings = loadSettings();
+    double R = settings.value("R").toDouble();
     Roll roll(
                 R,
-                ui->rho_v_edit->text().toDouble(),
-                ui->c_v_edit->text().toDouble(),
-                ui->lambda_v_edit->text().toDouble()
+                settings.value("rho_v").toDouble(),
+                settings.value("c_v").toDouble(),
+                settings.value("lambda_v").toDouble()
               );
 
-    double h_b = ui->editH_b->text().toDouble()/1000;
-    double h_a = ui->editH_a->text().toDouble()/1000;
-    double M = ui->hStep->text().toInt();
-    double N = ui->thetaStep->text().toInt();
+    double h_b = settings.value("h_b").toDouble();
+    double h_a = settings.value("h_a").toDouble();
+    int M = settings.value("M").toInt();
+    int N = settings.value("N").toInt();
     Strip strip(1.357,
-                ui->lambda_p_edit->text().toDouble(),
-                ui->rho_p_edit->text().toDouble(),
-                ui->c_p_edit->text().toDouble()
+                settings.value("lambda_p").toDouble(),
+                settings.value("rho_p").toDouble(),
+                settings.value("c_p").toDouble()
                 );
     Focus focus(h_b, h_a, roll, strip, 0.000025, 2.0);
 
@@ -285,6 +292,6 @@ void MainWindow::buildPlot(
 
 void MainWindow::on_openSettings_clicked()
 {
-    if (!settings->isVisible())
-        settings->show();
+    Settings *settings = new Settings();
+    settings->show();
 }

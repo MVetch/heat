@@ -11,27 +11,27 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Расчет теплового режима</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>840</x>
       <y>10</y>
-      <width>271</width>
-      <height>61</height>
+      <width>221</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Посчитать</string>
+     <string>Произвести расчет</string>
     </property>
    </widget>
    <widget class="QTableWidget" name="tableWidget">
     <property name="geometry">
      <rect>
       <x>840</x>
-      <y>90</y>
+      <y>50</y>
       <width>391</width>
       <height>291</height>
      </rect>
@@ -53,9 +53,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>400</y>
+      <y>350</y>
       <width>391</width>
-      <height>311</height>
+      <height>361</height>
      </rect>
     </property>
     <property name="title">
@@ -67,7 +67,7 @@
        <x>10</x>
        <y>20</y>
        <width>371</width>
-       <height>281</height>
+       <height>331</height>
       </rect>
      </property>
     </widget>
@@ -76,9 +76,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
+      <y>10</y>
       <width>391</width>
-      <height>301</height>
+      <height>331</height>
      </rect>
     </property>
     <property name="title">
@@ -90,7 +90,7 @@
        <x>10</x>
        <y>20</y>
        <width>371</width>
-       <height>271</height>
+       <height>301</height>
       </rect>
      </property>
     </widget>
@@ -99,9 +99,9 @@
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>80</y>
+      <y>10</y>
       <width>391</width>
-      <height>301</height>
+      <height>331</height>
      </rect>
     </property>
     <property name="title">
@@ -113,7 +113,7 @@
        <x>10</x>
        <y>20</y>
        <width>371</width>
-       <height>271</height>
+       <height>301</height>
       </rect>
      </property>
     </widget>
@@ -122,9 +122,9 @@
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>400</y>
+      <y>350</y>
       <width>391</width>
-      <height>311</height>
+      <height>361</height>
      </rect>
     </property>
     <property name="title">
@@ -136,7 +136,7 @@
        <x>10</x>
        <y>20</y>
        <width>371</width>
-       <height>281</height>
+       <height>331</height>
       </rect>
      </property>
     </widget>
@@ -145,9 +145,9 @@
     <property name="geometry">
      <rect>
       <x>840</x>
-      <y>400</y>
+      <y>350</y>
       <width>391</width>
-      <height>311</height>
+      <height>361</height>
      </rect>
     </property>
     <property name="title">
@@ -159,7 +159,7 @@
        <x>10</x>
        <y>20</y>
        <width>371</width>
-       <height>281</height>
+       <height>331</height>
       </rect>
      </property>
     </widget>
@@ -167,9 +167,9 @@
    <widget class="QPushButton" name="openSettings">
     <property name="geometry">
      <rect>
-      <x>890</x>
-      <y>52</y>
-      <width>201</width>
+      <x>1100</x>
+      <y>10</y>
+      <width>131</width>
       <height>31</height>
      </rect>
     </property>

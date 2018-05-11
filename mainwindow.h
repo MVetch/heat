@@ -5,6 +5,10 @@
 #include <qmath.h>
 #include <QPair>
 #include <qmessagebox.h>
+#include <QFile>
+#include <QByteArray>
+#include <QJsonDocument>
+#include <QString>
 #include "plot.h"
 #include "diffequation.h"
 #include "qcustomplot.h"
@@ -23,6 +27,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    QJsonObject loadSettings();
 
 private slots:
     void onClick();

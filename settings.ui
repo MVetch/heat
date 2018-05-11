@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>284</width>
-    <height>348</height>
+    <width>462</width>
+    <height>270</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Настройки</string>
   </property>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>261</width>
+     <width>441</width>
      <height>111</height>
     </rect>
    </property>
@@ -41,9 +41,9 @@
    <widget class="QLineEdit" name="c_p_edit">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>320</x>
       <y>30</y>
-      <width>51</width>
+      <width>111</width>
       <height>21</height>
      </rect>
     </property>
@@ -54,14 +54,14 @@
    <widget class="QLabel" name="label_12">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>340</x>
       <y>50</y>
-      <width>16</width>
+      <width>71</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>c</string>
+     <string>Теплоемкость</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lambda_p_edit">
@@ -69,7 +69,7 @@
      <rect>
       <x>60</x>
       <y>30</y>
-      <width>51</width>
+      <width>111</width>
       <height>21</height>
      </rect>
     </property>
@@ -82,20 +82,20 @@
      <rect>
       <x>70</x>
       <y>50</y>
-      <width>41</width>
+      <width>101</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>lambda</string>
+     <string>Теплопроводность</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="rho_v_edit">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>190</x>
       <y>70</y>
-      <width>51</width>
+      <width>111</width>
       <height>21</height>
      </rect>
     </property>
@@ -106,14 +106,14 @@
    <widget class="QLabel" name="label_11">
     <property name="geometry">
      <rect>
-      <x>150</x>
+      <x>190</x>
       <y>50</y>
-      <width>16</width>
+      <width>111</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>rho</string>
+     <string>Плотность материала</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_9">
@@ -134,7 +134,7 @@
      <rect>
       <x>60</x>
       <y>70</y>
-      <width>51</width>
+      <width>111</width>
       <height>21</height>
      </rect>
     </property>
@@ -145,9 +145,9 @@
    <widget class="QLineEdit" name="rho_p_edit">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>190</x>
       <y>30</y>
-      <width>51</width>
+      <width>111</width>
       <height>21</height>
      </rect>
     </property>
@@ -158,9 +158,9 @@
    <widget class="QLineEdit" name="c_v_edit">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>320</x>
       <y>70</y>
-      <width>51</width>
+      <width>111</width>
       <height>21</height>
      </rect>
     </property>
@@ -174,8 +174,8 @@
     <rect>
      <x>10</x>
      <y>130</y>
-     <width>261</width>
-     <height>121</height>
+     <width>231</width>
+     <height>131</height>
     </rect>
    </property>
    <property name="title">
@@ -185,7 +185,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>90</y>
+      <y>100</y>
       <width>101</width>
       <height>21</height>
      </rect>
@@ -197,8 +197,8 @@
    <widget class="QLineEdit" name="editH_b">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>30</y>
+      <x>170</x>
+      <y>20</y>
       <width>51</width>
       <height>21</height>
      </rect>
@@ -211,7 +211,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>30</y>
+      <y>20</y>
       <width>131</width>
       <height>21</height>
      </rect>
@@ -236,8 +236,8 @@
    <widget class="QLineEdit" name="lineRad">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>90</y>
+      <x>170</x>
+      <y>100</y>
       <width>51</width>
       <height>21</height>
      </rect>
@@ -249,7 +249,7 @@
    <widget class="QLineEdit" name="editH_a">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>170</x>
       <y>60</y>
       <width>51</width>
       <height>21</height>
@@ -263,9 +263,9 @@
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>260</y>
-     <width>261</width>
+     <x>250</x>
+     <y>130</y>
+     <width>201</width>
      <height>81</height>
     </rect>
    </property>
@@ -288,7 +288,7 @@
    <widget class="QLineEdit" name="thetaStep">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>140</x>
       <y>20</y>
       <width>51</width>
       <height>21</height>
@@ -301,7 +301,7 @@
    <widget class="QLineEdit" name="hStep">
     <property name="geometry">
      <rect>
-      <x>200</x>
+      <x>140</x>
       <y>50</y>
       <width>51</width>
       <height>21</height>
@@ -324,6 +324,19 @@
      <string>Точек по phi</string>
     </property>
    </widget>
+  </widget>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>220</y>
+     <width>201</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Сохранить</string>
+   </property>
   </widget>
  </widget>
  <resources/>
