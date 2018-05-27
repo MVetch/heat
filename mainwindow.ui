@@ -6,34 +6,136 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1246</width>
-    <height>720</height>
+    <width>1230</width>
+    <height>740</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Расчет теплового режима</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>840</x>
-      <y>10</y>
-      <width>221</width>
-      <height>31</height>
+      <x>10</x>
+      <y>360</y>
+      <width>391</width>
+      <height>351</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Произвести расчет</string>
+    <property name="title">
+     <string>Температура на выходе из очага</string>
     </property>
+    <widget class="QCustomPlot" name="widget_T" native="true">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>371</width>
+       <height>321</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>391</width>
+      <height>341</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Тепловой поток</string>
+    </property>
+    <widget class="QCustomPlot" name="widget_q" native="true">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>371</width>
+       <height>311</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_3">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>10</y>
+      <width>391</width>
+      <height>341</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Нормальное давление</string>
+    </property>
+    <widget class="QCustomPlot" name="widget_px" native="true">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>371</width>
+       <height>311</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_4">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>360</y>
+      <width>391</width>
+      <height>351</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Сопротивление деформации</string>
+    </property>
+    <widget class="QCustomPlot" name="widget_KDef" native="true">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>371</width>
+       <height>321</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_5">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>360</y>
+      <width>391</width>
+      <height>351</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Сила трения</string>
+    </property>
+    <widget class="QCustomPlot" name="widget_tauCont" native="true">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>371</width>
+       <height>321</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
    <widget class="QTableWidget" name="tableWidget">
     <property name="geometry">
      <rect>
-      <x>840</x>
-      <y>50</y>
+      <x>830</x>
+      <y>80</y>
       <width>391</width>
-      <height>291</height>
+      <height>271</height>
      </rect>
     </property>
     <property name="maximumSize">
@@ -49,135 +151,89 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QGroupBox" name="groupBox">
+   <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>350</y>
-      <width>391</width>
-      <height>361</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Температура на выходе из очага</string>
-    </property>
-    <widget class="QCustomPlot" name="widget_T" native="true">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>371</width>
-       <height>331</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
+      <x>830</x>
       <y>10</y>
       <width>391</width>
-      <height>331</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Тепловой поток</string>
-    </property>
-    <widget class="QCustomPlot" name="widget_q" native="true">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>371</width>
-       <height>301</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_3">
-    <property name="geometry">
-     <rect>
-      <x>420</x>
-      <y>10</y>
-      <width>391</width>
-      <height>331</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Нормальное давление</string>
-    </property>
-    <widget class="QCustomPlot" name="widget_px" native="true">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>371</width>
-       <height>301</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_4">
-    <property name="geometry">
-     <rect>
-      <x>420</x>
-      <y>350</y>
-      <width>391</width>
-      <height>361</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Сопротивление деформации</string>
-    </property>
-    <widget class="QCustomPlot" name="widget_KDef" native="true">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>371</width>
-       <height>331</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_5">
-    <property name="geometry">
-     <rect>
-      <x>840</x>
-      <y>350</y>
-      <width>391</width>
-      <height>361</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Сила трения</string>
-    </property>
-    <widget class="QCustomPlot" name="widget_tauCont" native="true">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>371</width>
-       <height>331</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QPushButton" name="openSettings">
-    <property name="geometry">
-     <rect>
-      <x>1100</x>
-      <y>10</y>
-      <width>131</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Открыть настройки</string>
+     <string>Просчитать температуру</string>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="progressBar">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>50</y>
+      <width>391</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>0</number>
+    </property>
+    <property name="value">
+     <number>0</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="format">
+     <string>%v оборотов из %m</string>
     </property>
    </widget>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1230</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Файл</string>
+    </property>
+    <addaction name="openSettings"/>
+    <addaction name="separator"/>
+    <addaction name="action_2"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Справка</string>
+    </property>
+    <addaction name="action"/>
+    <addaction name="action_Qt"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+  </widget>
+  <action name="action">
+   <property name="text">
+    <string>Вызвать справку</string>
+   </property>
+  </action>
+  <action name="action_Qt">
+   <property name="text">
+    <string>О Qt</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>Выход</string>
+   </property>
+  </action>
+  <action name="openSettings">
+   <property name="text">
+    <string>Настройки</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

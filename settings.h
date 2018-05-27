@@ -7,6 +7,7 @@
 #include <QJsonDocument>
 #include <QString>
 #include <QFile>
+#include <QMessageBox>
 
 namespace Ui {
 class Settings;
@@ -21,7 +22,9 @@ public:
     ~Settings();
     static QString saveFileName;
     Ui::Settings *ui;
-    void write(QJsonObject &json);
+    void writeFocus(QJsonObject &json);
+    void load();
+    static int amountOfSettings;
 
 private slots:
     void on_pushButton_clicked();

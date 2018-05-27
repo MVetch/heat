@@ -9,12 +9,16 @@
 #include <QByteArray>
 #include <QJsonDocument>
 #include <QString>
+#include <QThread>
 #include "plot.h"
 #include "diffequation.h"
 #include "qcustomplot.h"
 #include "roll.h"
 #include "focus.h"
 #include "settings.h"
+#include "maincalculator.h"
+
+//class diffEquation;
 
 namespace Ui {
 class MainWindow;
@@ -32,10 +36,18 @@ public:
 private slots:
     void onClick();
     void on_pushButton_clicked();
-    void on_openSettings_clicked();
+    void on_openSettings_tiggered();
+    void aboutQt();
+    void clean();
+    void output(diffEquation *de);
+    void showError(QString);
+    void updateProgressBar(int);
+    void updateProgressBarMaxValue(int);
 
 private:
     Ui::MainWindow *ui;
+    MainCalculator *calculator;
+    QThread *thread;
     double X(qreal,qreal);
     double Y(qreal,qreal);
     void buildPlot(

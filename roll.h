@@ -2,22 +2,26 @@
 #define ROLL_H
 
 #include "qmath.h"
+#include <QVector>
 
 class Roll
 {
 
 public:
-    Roll(qreal R,qreal rho,qreal c, qreal lambda);
+    Roll(double R, double rho, double c, double lambda);
     Roll();
-    qreal getR();
-    qreal getC();
-    qreal getRho();
-    qreal getLambda();
-    double initT(qreal r);
+    double getR();
+    double getC();
+    double getRho();
+    double getLambda();
+    void setInitT(QVector<double> t);
+    double initT(int j);
     double countmmToHeat();
+    QVector<double> T;
+    //double *T;
 
 private:
-    qreal radius;
+    double radius;
     double c;
     double rho;
     double lambda;

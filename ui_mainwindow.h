@@ -16,6 +16,9 @@
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QMenuBar>
+#include <QtWidgets/QProgressBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QWidget>
@@ -26,9 +29,11 @@ QT_BEGIN_NAMESPACE
 class Ui_MainWindow
 {
 public:
+    QAction *action;
+    QAction *action_Qt;
+    QAction *action_2;
+    QAction *openSettings;
     QWidget *centralWidget;
-    QPushButton *pushButton;
-    QTableWidget *tableWidget;
     QGroupBox *groupBox;
     QCustomPlot *widget_T;
     QGroupBox *groupBox_2;
@@ -39,58 +44,90 @@ public:
     QCustomPlot *widget_KDef;
     QGroupBox *groupBox_5;
     QCustomPlot *widget_tauCont;
-    QPushButton *openSettings;
+    QTableWidget *tableWidget;
+    QPushButton *pushButton;
+    QProgressBar *progressBar;
+    QMenuBar *menuBar;
+    QMenu *menu;
+    QMenu *menu_2;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(1246, 720);
+        MainWindow->resize(1230, 740);
+        action = new QAction(MainWindow);
+        action->setObjectName(QStringLiteral("action"));
+        action_Qt = new QAction(MainWindow);
+        action_Qt->setObjectName(QStringLiteral("action_Qt"));
+        action_2 = new QAction(MainWindow);
+        action_2->setObjectName(QStringLiteral("action_2"));
+        openSettings = new QAction(MainWindow);
+        openSettings->setObjectName(QStringLiteral("openSettings"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
-        pushButton = new QPushButton(centralWidget);
-        pushButton->setObjectName(QStringLiteral("pushButton"));
-        pushButton->setGeometry(QRect(840, 10, 221, 31));
+        groupBox = new QGroupBox(centralWidget);
+        groupBox->setObjectName(QStringLiteral("groupBox"));
+        groupBox->setGeometry(QRect(10, 360, 391, 351));
+        widget_T = new QCustomPlot(groupBox);
+        widget_T->setObjectName(QStringLiteral("widget_T"));
+        widget_T->setGeometry(QRect(10, 20, 371, 321));
+        groupBox_2 = new QGroupBox(centralWidget);
+        groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
+        groupBox_2->setGeometry(QRect(10, 10, 391, 341));
+        widget_q = new QCustomPlot(groupBox_2);
+        widget_q->setObjectName(QStringLiteral("widget_q"));
+        widget_q->setGeometry(QRect(10, 20, 371, 311));
+        groupBox_3 = new QGroupBox(centralWidget);
+        groupBox_3->setObjectName(QStringLiteral("groupBox_3"));
+        groupBox_3->setGeometry(QRect(420, 10, 391, 341));
+        widget_px = new QCustomPlot(groupBox_3);
+        widget_px->setObjectName(QStringLiteral("widget_px"));
+        widget_px->setGeometry(QRect(10, 20, 371, 311));
+        groupBox_4 = new QGroupBox(centralWidget);
+        groupBox_4->setObjectName(QStringLiteral("groupBox_4"));
+        groupBox_4->setGeometry(QRect(420, 360, 391, 351));
+        widget_KDef = new QCustomPlot(groupBox_4);
+        widget_KDef->setObjectName(QStringLiteral("widget_KDef"));
+        widget_KDef->setGeometry(QRect(10, 20, 371, 321));
+        groupBox_5 = new QGroupBox(centralWidget);
+        groupBox_5->setObjectName(QStringLiteral("groupBox_5"));
+        groupBox_5->setGeometry(QRect(830, 360, 391, 351));
+        widget_tauCont = new QCustomPlot(groupBox_5);
+        widget_tauCont->setObjectName(QStringLiteral("widget_tauCont"));
+        widget_tauCont->setGeometry(QRect(10, 20, 371, 321));
         tableWidget = new QTableWidget(centralWidget);
         tableWidget->setObjectName(QStringLiteral("tableWidget"));
-        tableWidget->setGeometry(QRect(840, 50, 391, 291));
+        tableWidget->setGeometry(QRect(830, 80, 391, 271));
         tableWidget->setMaximumSize(QSize(391, 16777215));
         tableWidget->setWordWrap(false);
         tableWidget->setCornerButtonEnabled(false);
-        groupBox = new QGroupBox(centralWidget);
-        groupBox->setObjectName(QStringLiteral("groupBox"));
-        groupBox->setGeometry(QRect(10, 350, 391, 361));
-        widget_T = new QCustomPlot(groupBox);
-        widget_T->setObjectName(QStringLiteral("widget_T"));
-        widget_T->setGeometry(QRect(10, 20, 371, 331));
-        groupBox_2 = new QGroupBox(centralWidget);
-        groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
-        groupBox_2->setGeometry(QRect(10, 10, 391, 331));
-        widget_q = new QCustomPlot(groupBox_2);
-        widget_q->setObjectName(QStringLiteral("widget_q"));
-        widget_q->setGeometry(QRect(10, 20, 371, 301));
-        groupBox_3 = new QGroupBox(centralWidget);
-        groupBox_3->setObjectName(QStringLiteral("groupBox_3"));
-        groupBox_3->setGeometry(QRect(420, 10, 391, 331));
-        widget_px = new QCustomPlot(groupBox_3);
-        widget_px->setObjectName(QStringLiteral("widget_px"));
-        widget_px->setGeometry(QRect(10, 20, 371, 301));
-        groupBox_4 = new QGroupBox(centralWidget);
-        groupBox_4->setObjectName(QStringLiteral("groupBox_4"));
-        groupBox_4->setGeometry(QRect(420, 350, 391, 361));
-        widget_KDef = new QCustomPlot(groupBox_4);
-        widget_KDef->setObjectName(QStringLiteral("widget_KDef"));
-        widget_KDef->setGeometry(QRect(10, 20, 371, 331));
-        groupBox_5 = new QGroupBox(centralWidget);
-        groupBox_5->setObjectName(QStringLiteral("groupBox_5"));
-        groupBox_5->setGeometry(QRect(840, 350, 391, 361));
-        widget_tauCont = new QCustomPlot(groupBox_5);
-        widget_tauCont->setObjectName(QStringLiteral("widget_tauCont"));
-        widget_tauCont->setGeometry(QRect(10, 20, 371, 331));
-        openSettings = new QPushButton(centralWidget);
-        openSettings->setObjectName(QStringLiteral("openSettings"));
-        openSettings->setGeometry(QRect(1100, 10, 131, 31));
+        pushButton = new QPushButton(centralWidget);
+        pushButton->setObjectName(QStringLiteral("pushButton"));
+        pushButton->setGeometry(QRect(830, 10, 391, 31));
+        progressBar = new QProgressBar(centralWidget);
+        progressBar->setObjectName(QStringLiteral("progressBar"));
+        progressBar->setGeometry(QRect(830, 50, 391, 23));
+        progressBar->setMaximum(0);
+        progressBar->setValue(0);
+        progressBar->setAlignment(Qt::AlignCenter);
         MainWindow->setCentralWidget(centralWidget);
+        menuBar = new QMenuBar(MainWindow);
+        menuBar->setObjectName(QStringLiteral("menuBar"));
+        menuBar->setGeometry(QRect(0, 0, 1230, 21));
+        menu = new QMenu(menuBar);
+        menu->setObjectName(QStringLiteral("menu"));
+        menu_2 = new QMenu(menuBar);
+        menu_2->setObjectName(QStringLiteral("menu_2"));
+        MainWindow->setMenuBar(menuBar);
+
+        menuBar->addAction(menu->menuAction());
+        menuBar->addAction(menu_2->menuAction());
+        menu->addAction(openSettings);
+        menu->addSeparator();
+        menu->addAction(action_2);
+        menu_2->addAction(action);
+        menu_2->addAction(action_Qt);
 
         retranslateUi(MainWindow);
 
@@ -100,13 +137,19 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "\320\240\320\260\321\201\321\207\320\265\321\202 \321\202\320\265\320\277\320\273\320\276\320\262\320\276\320\263\320\276 \321\200\320\265\320\266\320\270\320\274\320\260", Q_NULLPTR));
-        pushButton->setText(QApplication::translate("MainWindow", "\320\237\321\200\320\276\320\270\320\267\320\262\320\265\321\201\321\202\320\270 \321\200\320\260\321\201\321\207\320\265\321\202", Q_NULLPTR));
+        action->setText(QApplication::translate("MainWindow", "\320\222\321\213\320\267\320\262\320\260\321\202\321\214 \321\201\320\277\321\200\320\260\320\262\320\272\321\203", Q_NULLPTR));
+        action_Qt->setText(QApplication::translate("MainWindow", "\320\236 Qt", Q_NULLPTR));
+        action_2->setText(QApplication::translate("MainWindow", "\320\222\321\213\321\205\320\276\320\264", Q_NULLPTR));
+        openSettings->setText(QApplication::translate("MainWindow", "\320\235\320\260\321\201\321\202\321\200\320\276\320\271\320\272\320\270", Q_NULLPTR));
         groupBox->setTitle(QApplication::translate("MainWindow", "\320\242\320\265\320\274\320\277\320\265\321\200\320\260\321\202\321\203\321\200\320\260 \320\275\320\260 \320\262\321\213\321\205\320\276\320\264\320\265 \320\270\320\267 \320\276\321\207\320\260\320\263\320\260", Q_NULLPTR));
         groupBox_2->setTitle(QApplication::translate("MainWindow", "\320\242\320\265\320\277\320\273\320\276\320\262\320\276\320\271 \320\277\320\276\321\202\320\276\320\272", Q_NULLPTR));
         groupBox_3->setTitle(QApplication::translate("MainWindow", "\320\235\320\276\321\200\320\274\320\260\320\273\321\214\320\275\320\276\320\265 \320\264\320\260\320\262\320\273\320\265\320\275\320\270\320\265", Q_NULLPTR));
         groupBox_4->setTitle(QApplication::translate("MainWindow", "\320\241\320\276\320\277\321\200\320\276\321\202\320\270\320\262\320\273\320\265\320\275\320\270\320\265 \320\264\320\265\321\204\320\276\321\200\320\274\320\260\321\206\320\270\320\270", Q_NULLPTR));
         groupBox_5->setTitle(QApplication::translate("MainWindow", "\320\241\320\270\320\273\320\260 \321\202\321\200\320\265\320\275\320\270\321\217", Q_NULLPTR));
-        openSettings->setText(QApplication::translate("MainWindow", "\320\236\321\202\320\272\321\200\321\213\321\202\321\214 \320\275\320\260\321\201\321\202\321\200\320\276\320\271\320\272\320\270", Q_NULLPTR));
+        pushButton->setText(QApplication::translate("MainWindow", "\320\237\321\200\320\276\321\201\321\207\320\270\321\202\320\260\321\202\321\214 \321\202\320\265\320\274\320\277\320\265\321\200\320\260\321\202\321\203\321\200\321\203", Q_NULLPTR));
+        progressBar->setFormat(QApplication::translate("MainWindow", "%v \320\276\320\261\320\276\321\200\320\276\321\202\320\276\320\262 \320\270\320\267 %m", Q_NULLPTR));
+        menu->setTitle(QApplication::translate("MainWindow", "\320\244\320\260\320\271\320\273", Q_NULLPTR));
+        menu_2->setTitle(QApplication::translate("MainWindow", "\320\241\320\277\321\200\320\260\320\262\320\272\320\260", Q_NULLPTR));
     } // retranslateUi
 
 };

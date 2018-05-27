@@ -11,6 +11,11 @@ Roll::Roll()
 {
 }
 
+void Roll::setInitT(QVector<double> t)
+{
+    this->T = t;
+}
+
 qreal Roll::getR()
 {
     return this->radius;
@@ -28,12 +33,13 @@ qreal Roll::getLambda()
     return this->lambda;
 }
 
-double Roll::initT(qreal r)
+double Roll::initT(int j)
 {
-    return 70;
+    return this->T[j];
+    //return 70;
 }
 
 double Roll::countmmToHeat()
 {
-    return 0.020;
+    return 0.100;
 }

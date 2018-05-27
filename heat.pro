@@ -33,7 +33,8 @@ SOURCES += \
     strip.cpp \
     plot.cpp \
     scale.cpp \
-    settings.cpp
+    settings.cpp \
+    maincalculator.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -44,7 +45,8 @@ HEADERS += \
     strip.h \
     plot.h \
     scale.h \
-    settings.h
+    settings.h \
+    maincalculator.h
 
 FORMS += \
         mainwindow.ui \

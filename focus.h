@@ -12,9 +12,9 @@ public:
     Focus();
     Focus(qreal, qreal, Roll, Strip, Scale);
     Focus(qreal, qreal, Roll, Strip, double sc_w,  double sc_lambda);
-    Roll getRoll();
-    Strip getStrip();
-    Scale getScale();
+    Roll& getRoll();
+    Strip& getStrip();
+    Scale& getScale();
     double getHBefore();
     double getHAfter();
     double maxR(double phi);

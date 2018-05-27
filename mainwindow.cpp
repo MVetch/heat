@@ -8,13 +8,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(onClick()));
+    connect(ui->pushButton,   SIGNAL(clicked()),   this, SLOT(onClick()));
+    connect(ui->action_Qt,    SIGNAL(triggered()), this, SLOT(aboutQt()));
+    connect(ui->openSettings, SIGNAL(triggered()), this, SLOT(on_openSettings_tiggered()));
     //this->setStyleSheet("*{font-size:10px;}");
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete colors;
+    //delete de;
 }
 
 QJsonObject MainWindow::loadSettings()
@@ -24,43 +29,36 @@ QJsonObject MainWindow::loadSettings()
     return QJsonDocument(QJsonDocument::fromJson(fsettigs.readAll())).object();
 }
 
-void MainWindow::onClick(){
-    time.start();
-    QJsonObject settings = loadSettings();
-    double R = settings.value("R").toDouble();
-    Roll roll(
-                R,
-                settings.value("rho_v").toDouble(),
-                settings.value("c_v").toDouble(),
-                settings.value("lambda_v").toDouble()
-              );
+void MainWindow::aboutQt(){
+    QMessageBox::aboutQt(this);
+}
 
-    double h_b = settings.value("h_b").toDouble();
-    double h_a = settings.value("h_a").toDouble();
-    int M = settings.value("M").toInt();
-    int N = settings.value("N").toInt();
-    Strip strip(1.357,
-                settings.value("lambda_p").toDouble(),
-                settings.value("rho_p").toDouble(),
-                settings.value("c_p").toDouble()
-                );
-    Focus focus(h_b, h_a, roll, strip, 0.000025, 2.0);
+void MainWindow::clean()
+{
+    delete thread;
+    delete calculator;
+}
 
-    diffEquation *de = new diffEquation(M, N, focus);
-    double timeDifur = time.elapsed();
-    de->solve();
-    timeDifur = (double)(time.elapsed() - timeDifur)/1000;
-    QVector<QVector<double>> res = de->getResult();
+void MainWindow::output(diffEquation *de)
+{
+    int N = de->N + de->Nnonfocus;
+    int M = de->M;
 
     double angle = 0;
+    QVector<QVector<double>> res;
+    res.resize(N + 1);
+    for(int i = 0; i < N + 1; i++)
+        std::copy(de->getResult(i), de->getResult(i) + (i > de->N?de->Mcont:de->M - 2), std::back_inserter(res[i]));
 
     //===============================вывод в таблицу===============================
-    ui->tableWidget->clear();
-    ui->tableWidget->setRowCount(res.size());
-    ui->tableWidget->setColumnCount(de->M);
 
     int Mcur = 0;
     QString info = "";
+
+    ui->tableWidget->clear();
+    ui->tableWidget->setRowCount(N+1);
+    ui->tableWidget->setColumnCount(M);
+
     for(int j = 0; j < de->Mcont; j++){
         ui->tableWidget->setItem(0, j, new QTableWidgetItem(QString::number(res[0][j])));
         ui->tableWidget->item(0, j)->setBackground(Qt::cyan);
@@ -69,15 +67,15 @@ void MainWindow::onClick(){
     for(int j = de->Mcont; j < de->M; j++){
         ui->tableWidget->setColumnWidth(j, 50);
     }
-    for(int i = 1; i < res.size(); i++){
+    for(int i = 1; i < de->N; i++){
         angle = (i - 1) * de->theta;
         Mcur = qMax(de->MUpdate(angle, de->h) - 1 - 2, de->Mcont);
         info+="phi = " + QString::number(angle, 'f', 5) + "рад. / " +
                          QString::number(angle*180/M_PI, 'f', 5) + "°\t r = " +
-                         QString::number(focus.maxR(angle), 'f', 5)+ ";\n";
+                         QString::number(de->getFocus().maxR(angle), 'f', 5)+ ";\n";
         for(int j = 0; j < de->Mcont; j++){
             ui->tableWidget->setItem(i, j, new QTableWidgetItem(QString::number(res[i][j])));
-            if((i-1 == qRound(focus.beta/de->theta)))
+            if((i-1 == qRound(de->getFocus().beta/de->theta)))
                 ui->tableWidget->item(i, j)->setBackground(Qt::green);
             else
                 ui->tableWidget->item(i, j)->setBackground(Qt::cyan);
@@ -86,23 +84,30 @@ void MainWindow::onClick(){
         ui->tableWidget->setItem(i, de->Mcont,     new QTableWidgetItem(QString::number(
                                                                             de->beta1 / (1 - de->beta2 * de->beta3) * res[i][de->Mcont - 1] +
                                                                             de->beta2 * de->beta4 / (1 - de->beta2 * de->beta3) * res[i][de->Mcont] +
-                                                                            de->q(i-1) * focus.getScale().thickness * de->h / (focus.getRoll().getLambda() * focus.getScale().thickness + focus.getScale().lambda * de->h)
+                                                                            de->q(i-1) * de->getFocus().getScale().thickness * de->h / (de->getFocus().getRoll().getLambda() * de->getFocus().getScale().thickness + de->getFocus().getScale().lambda * de->h)
                                                                            )));
         ui->tableWidget->item(i, de->Mcont)->setBackground(Qt::yellow);
 
         ui->tableWidget->setItem(i, de->Mcont + 1, new QTableWidgetItem(QString::number(
                                                                            de->beta1 * de->beta3 / (1 - de->beta2 * de->beta3) * res[i][de->Mcont - 1] +
                                                                            de->beta4 / (1 - de->beta2 * de->beta3) * res[i][de->Mcont] +
-                                                                           de->q(i-1) * focus.getScale().thickness * de->h * de->beta3 / ((focus.getRoll().getLambda() * focus.getScale().thickness + focus.getScale().lambda * de->h) * (1 - de->beta2 * de->beta3))
+                                                                           de->q(i-1) * de->getFocus().getScale().thickness * de->h * de->beta3 / ((de->getFocus().getRoll().getLambda() * de->getFocus().getScale().thickness + de->getFocus().getScale().lambda * de->h) * (1 - de->beta2 * de->beta3))
                                                                        )));
         ui->tableWidget->item(i, de->Mcont + 1)->setBackground(Qt::darkMagenta);
 
         for(int j = de->Mcont; j <= Mcur; j++){
             ui->tableWidget->setItem(i, j + 2, new QTableWidgetItem(QString::number(res[i][j])));
-            if((i-1 == qRound(focus.beta/de->theta)))
+            if((i-1 == qRound(de->getFocus().beta/de->theta)))
                 ui->tableWidget->item(i, j + 2)->setBackground(Qt::green);
             else
                 ui->tableWidget->item(i, j + 2)->setBackground(Qt::red);
+        }
+    }
+
+    for(int i = de->N; i < N + 1; i++){
+        for(int j = 0; j < de->Mcont; j++){
+            ui->tableWidget->setItem(i, j, new QTableWidgetItem(QString::number(res[i][j])));
+            ui->tableWidget->item(i, j)->setBackground(Qt::cyan);
         }
     }
     ui->tableWidget->setHorizontalHeaderItem(de->Mcont,     new QTableWidgetItem("Стык"));
@@ -180,9 +185,9 @@ void MainWindow::onClick(){
     //===============================график температуры===============================
 
     maxY = 0, minY = 1e90;
-    x.resize(de->MUpdate(focus.phi_max, de->h)-2 - de->Mcont);
-    y.resize(de->MUpdate(focus.phi_max, de->h)-2 - de->Mcont);
-    int index = res.size() - 1;
+    x.resize(de->MUpdate(de->getFocus().phi_max, de->h)-2 - de->Mcont);
+    y.resize(de->MUpdate(de->getFocus().phi_max, de->h)-2 - de->Mcont);
+    int index = de->N - 1;
     for (int i = 0; i < x.size(); i++){
         x[i] = i + de->Mcont;
         y[i] = res[index][i + de->Mcont];
@@ -203,32 +208,80 @@ void MainWindow::onClick(){
     buildPlot(
                 *ui->widget_T,
                 plotsTemp,
-                QPair<double, double>(0, de->MUpdate(focus.phi_max, de->h)-2),
+                QPair<double, double>(0, de->MUpdate(de->getFocus().phi_max, de->h)-2),
                 QPair<double, double>(minY/2, maxY*1.2),
                 QString("Номер точки в глубину"),
                 QString("°C"),
                 true
                 );
+
+
+//    for(int i = 0; i < de->N + de->Nnonfocus + 1; i++){
+//        delete[] res[i];
+//    }
+
     //===============================Сообщение в конце===============================
     QMessageBox msgBox;
 
     msgBox.setText("Посчиталось!");
     msgBox.setStyleSheet("QLabel{min-width: 300px;}");
 
-    msgBox.setInformativeText("phi ∈ [0; " + QString::number(focus.phi_max) +"] рад.\n"+
-                              "phi ∈ [0; " + QString::number(focus.phi_max*180/M_PI) +"] °\n"+
-                              "t ∈ [0; " + QString::number(focus.phi_max / focus.getRoll().getR() / 73 * 60) +"] c\n"+
+    msgBox.setInformativeText("phi ∈ [0; " + QString::number(de->getFocus().phi_max) +"] рад.\n"+
+                              "phi ∈ [0; " + QString::number(de->getFocus().phi_max*180/M_PI) +"] °\n"+
+                              "t ∈ [0; " + QString::number(de->getFocus().phi_max / de->getFocus().getRoll().getR() / 73 * 60) +"] c\n"+
                               "Номер точки стыка: " + QString::number(de->Mcont + 1)+"\n"+
                               "Шаг по r: " + QString::number(de->h)+"\n"+
                               "Шаг по phi: " + QString::number(de->theta)+"\n"+
-                              "Считалось " + QString::number((double)time.elapsed()/1000) + "c."+"\n"+
-                              "Решалось " + QString::number(timeDifur) + "c."
+                              "Считалось " + QString::number((double)time.elapsed()/1000) + "c."+"\n"//+
+                              //"Решалось " + QString::number(timeDifur) + "c."+"\n"+
+                              //"Решалось2 " + QString::number(timeDifur2) + "c."
                               );
-    msgBox.setDetailedText(info);
+    //msgBox.setDetailedText(info);
     msgBox.setStandardButtons(QMessageBox::Close);
     msgBox.exec();
 
     delete de;
+    ui->pushButton->setEnabled(true);
+}
+
+void MainWindow::showError(QString err)
+{
+    QMessageBox::critical(this, "Ошибка!", err);
+}
+
+void MainWindow::updateProgressBar(int value)
+{
+    ui->progressBar->setValue(value);
+    ui->progressBar->update();
+}
+
+void MainWindow::updateProgressBarMaxValue(int value)
+{
+    ui->progressBar->setMaximum(value);
+}
+
+void MainWindow::onClick(){
+    time.start();
+
+    calculator = new MainCalculator();
+    thread = new QThread;
+    calculator->moveToThread(thread);
+
+    connect(calculator, SIGNAL (error(QString)),          this, SLOT (showError(QString)));
+    connect(calculator, SIGNAL (sendMaxValue(int)),       this, SLOT (updateProgressBarMaxValue(int)));
+    connect(calculator, SIGNAL (toOutput(diffEquation*)), this, SLOT (output(diffEquation*)));
+    connect(calculator, SIGNAL (progress(int)),           this, SLOT (updateProgressBar(int)));
+    connect(thread,     SIGNAL (started()),  calculator, SLOT (calc()));
+    connect(calculator, SIGNAL (finished()), thread,     SLOT (quit()));
+    connect(thread,     SIGNAL (finished()), this,       SLOT (clean()));
+    connect(calculator, SIGNAL (finished()), calculator, SLOT (deleteLater()));
+    connect(thread,     SIGNAL (finished()), thread,     SLOT (deleteLater()));
+
+    //calculator->settings = loadSettings();
+    //calculator->moveToThread(thread);
+    thread->start();
+
+    ui->pushButton->setEnabled(false);
 }
 
 double MainWindow::X(double r, double phi){
@@ -290,8 +343,11 @@ void MainWindow::buildPlot(
     widget.replot();
 }
 
-void MainWindow::on_openSettings_clicked()
+void MainWindow::on_openSettings_tiggered()
 {
     Settings *settings = new Settings();
+    settings->setModal(true);
+    settings->load();
     settings->show();
+
 }

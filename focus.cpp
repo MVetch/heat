@@ -34,11 +34,11 @@ Focus::Focus(qreal hb, qreal ha, Roll r, Strip s, double sc_w, double sc_lambda)
     r_max = qSqrt(r.getR()*r.getR()+(h_b*h_b)/4+r.getR()*h_b*qCos(phi_max));
 }
 
-Roll Focus::getRoll()
+Roll& Focus::getRoll()
 {
     return this->roll;
 }
-Scale Focus::getScale()
+Scale& Focus::getScale()
 {
     return this->scale;
 }
@@ -53,7 +53,7 @@ double Focus::curH(double phi)
     return roll.getR() * (1 - qCos(phi_max - phi)) + h_a / 2;
 }
 
-Strip Focus::getStrip()
+Strip& Focus::getStrip()
 {
     return this->strip;
 }

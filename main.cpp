@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "settings.h"
+#include "diffequation.h"
 #include <QApplication>
 #include <QTranslator>
 #include <QLibraryInfo>
@@ -7,6 +8,7 @@ typedef double qreal;
 
 int main(int argc, char *argv[])
 {
+    qRegisterMetaType<QVector<QVector<double>>>("QVector<QVector<double>>");
     QStringList paths = QCoreApplication::libraryPaths();
     paths.append(".");
     paths.append("imageformats");
