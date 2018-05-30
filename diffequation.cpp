@@ -5,7 +5,8 @@ diffEquation::diffEquation()
 
 }
 
-diffEquation::diffEquation(int M,
+diffEquation::diffEquation(
+        int M,
         int N,
         Focus f
 )
@@ -15,7 +16,6 @@ diffEquation::diffEquation(int M,
 
     this->h = (focus.r_max - focus.getRoll().getR() + focus.getRoll().countmmToHeat()) / M;
     this->Mcont = MUpdate(0, h);
-    //this->theta = focus.phi_max / N;
     this->theta = 2 * M_PI / N;
     this->N = focus.phi_max / theta;
 
@@ -28,13 +28,6 @@ diffEquation::diffEquation(int M,
     for(int i = 0; i < this->Nnonfocus; i++){
         this->u[this->N + i + 1] = new double[Mcont];
     }
-//      u.resize(N + 1);
-//    for(int i = 0; i < this->N + 1; i++){
-//        this->u[i].resize(M-2);
-//    }
-//    for(int i = 0; i < this->Nnonfocus; i++){
-//        this->u[this->N + i + 1].resize(Mcont);
-//    }
 
     double sigmaF = 0.059;
     double sigmaB = 0.05;
@@ -89,22 +82,6 @@ diffEquation::diffEquation(const diffEquation &other):
     beta2 = other.beta2;
     beta3 = other.beta3;
     beta4 = other.beta4;
-//    other.h = h;
-//    other.M = M;
-//    other.Mcont = Mcont;
-//    other.N = N;
-//    other.NBack = NBack;
-//    other.NForward = NForward;
-//    other.Nneutr = Nneutr;
-//    other.Nnonfocus = Nnonfocus;
-//    other.px0 = px0;
-//    other.px1 = px1;
-//    other.pxCont = pxCont;
-//    other.tauCont = tauCont;
-//    other.tauContAbs = tauContAbs;
-//    other.tauShear = tauShear;
-//    other.theta = theta;
-//    other.setFocus(focus);
     for(int i = 0; i < other.N + 1; i++){
         for(int j = 0; j < other.M - 2; j++){
             u[i][j] = other.u[i][j];
@@ -131,7 +108,7 @@ double diffEquation::f(int i, int j){
 double diffEquation::q(int i){
 
     if(i > NBack && i < NForward) return 0;
-    double Vwr = 73.0 / 60.0;
+    double Vwr = focus.getRoll().getSpeed();
     double omegaSlip = Vwr * (focus.curH(Nneutr * theta) / focus.curH(i * theta) - 1);
 
     /*должно быть tauCont1, которое высчитывается по странной формуле*/
@@ -142,7 +119,7 @@ double diffEquation::Kdef(double phi){
     double aSt = 0.124, bSt = 0.167, cSt = -2.54, sSt = 0.96;
     double deltaY0 = 90.7;
     double Ts = focus.getStrip().initT(0);
-    double v_wr_in =  73.0  / 60.0;//метров в секунду
+    double v_wr_in = focus.getRoll().getSpeed();//метров в секунду
     double u = 2.0 * v_wr_in * focus.length / (focus.getRoll().getR() * (focus.getHBefore() + focus.getHAfter()));
     return sSt * deltaY0 * qPow(u, aSt) * qPow(10 * focus.epsH(focus.curH(phi), focus.getHBefore()), bSt) * qPow(Ts/1000, cSt);
 }
@@ -165,14 +142,10 @@ void diffEquation::solveFocus()
     double a_s  = lambda_s  / (rho_s  * c_s );
     double lambda_sc = focus.getScale().lambda;
 
-    //u.resize(N+1);
     double *lambda = new double[M-4];
     double *delta = new double[M-4];
     double *r = new double[M-4];
-    //QVector<double> lambda(M-4), delta(M-4), r(M-4);
 
-    //u[0].resize(M-2);
-    //u[0] = new double[M-2];
     double angle = 0;
     int Mcur = 0;
 
@@ -209,8 +182,6 @@ void diffEquation::solveFocus()
 
     for(int i = 0; i < N; i++){ // значения на остальных слоях
         angle = i * theta;
-        //u[i+1].resize(M - 2);
-        //u[i+1] = new double[M-2];
         Mcur = qMax(MUpdate(angle, h) - 2 - 2, Mcont);//тут сразу отнимаем двойку, чтобы следовать размеру матрицы А
 
         // граничные условия
@@ -331,7 +302,7 @@ void diffEquation::solveNonFocus(double emulT)
     delete[] r;
 }
 
-double** /*QVector<QVector<double>>*/ diffEquation::getResult()
+double** diffEquation::getResult()
 {
     return this->u;
 }
@@ -340,7 +311,7 @@ double diffEquation::getResult(int i, int j)
 {
     return this->u[i][j];
 }
-double* /*QVector<double>*/ diffEquation::getResult(int i)
+double* diffEquation::getResult(int i)
 {
     return this->u[i];
 }

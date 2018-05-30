@@ -6,10 +6,10 @@
 #include <QPair>
 #include <qmessagebox.h>
 #include <QFile>
-#include <QByteArray>
-#include <QJsonDocument>
 #include <QString>
 #include <QThread>
+#include <QProcess>
+#include <QDesktopServices>
 #include "plot.h"
 #include "diffequation.h"
 #include "qcustomplot.h"
@@ -17,8 +17,6 @@
 #include "focus.h"
 #include "settings.h"
 #include "maincalculator.h"
-
-//class diffEquation;
 
 namespace Ui {
 class MainWindow;
@@ -31,13 +29,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    QJsonObject loadSettings();
 
 private slots:
     void onClick();
-    void on_pushButton_clicked();
-    void on_openSettings_tiggered();
+    void on_openSettings_triggered();
+    void on_loadSettings_triggered();
     void aboutQt();
+    void callHelp();
     void clean();
     void output(diffEquation *de);
     void showError(QString);
@@ -48,8 +46,6 @@ private:
     Ui::MainWindow *ui;
     MainCalculator *calculator;
     QThread *thread;
-    double X(qreal,qreal);
-    double Y(qreal,qreal);
     void buildPlot(
             QCustomPlot& widget,
             QVector<Plot> plots,

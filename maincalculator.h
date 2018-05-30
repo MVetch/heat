@@ -19,6 +19,7 @@ public:
     diffEquation *de;
     QJsonObject settings;
     QJsonObject loadSettings();
+    bool loaded = true;
 
 public slots:
     void calc();
@@ -28,7 +29,7 @@ signals:
     void progress(int);
     void sendMaxValue(int);
     void toOutput(diffEquation*);
-    void error(QString err);
+    void error(QString);
 };
 
 #endif // MAINCALCULATOR_H

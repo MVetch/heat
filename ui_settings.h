@@ -59,13 +59,21 @@ public:
     QSpinBox *timeToModel;
     QDoubleSpinBox *vSpin;
     QLabel *label_14;
+    QSpinBox *mmToHeat;
+    QLabel *label_15;
     QPushButton *pushButton;
+    QPushButton *pushButton_2;
 
     void setupUi(QDialog *Settings)
     {
         if (Settings->objectName().isEmpty())
             Settings->setObjectName(QStringLiteral("Settings"));
-        Settings->resize(484, 342);
+        Settings->resize(484, 364);
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(Settings->sizePolicy().hasHeightForWidth());
+        Settings->setSizePolicy(sizePolicy);
         groupBox = new QGroupBox(Settings);
         groupBox->setObjectName(QStringLiteral("groupBox"));
         groupBox->setGeometry(QRect(10, 10, 461, 91));
@@ -74,10 +82,12 @@ public:
         label_8->setGeometry(QRect(20, 20, 41, 21));
         label_12 = new QLabel(groupBox);
         label_12->setObjectName(QStringLiteral("label_12"));
-        label_12->setGeometry(QRect(360, 40, 71, 21));
+        label_12->setGeometry(QRect(340, 40, 111, 21));
+        label_12->setAlignment(Qt::AlignCenter);
         label_10 = new QLabel(groupBox);
         label_10->setObjectName(QStringLiteral("label_10"));
-        label_10->setGeometry(QRect(70, 40, 101, 21));
+        label_10->setGeometry(QRect(60, 40, 111, 21));
+        label_10->setAlignment(Qt::AlignCenter);
         label_11 = new QLabel(groupBox);
         label_11->setObjectName(QStringLiteral("label_11"));
         label_11->setGeometry(QRect(200, 40, 111, 21));
@@ -130,7 +140,7 @@ public:
         c_v_edit->setValue(500);
         groupBox_4 = new QGroupBox(Settings);
         groupBox_4->setObjectName(QStringLiteral("groupBox_4"));
-        groupBox_4->setGeometry(QRect(10, 200, 221, 81));
+        groupBox_4->setGeometry(QRect(10, 230, 221, 81));
         label_3 = new QLabel(groupBox_4);
         label_3->setObjectName(QStringLiteral("label_3"));
         label_3->setGeometry(QRect(10, 50, 151, 21));
@@ -140,14 +150,17 @@ public:
         editH_b = new QDoubleSpinBox(groupBox_4);
         editH_b->setObjectName(QStringLiteral("editH_b"));
         editH_b->setGeometry(QRect(160, 20, 51, 22));
+        editH_b->setMinimum(10);
         editH_b->setValue(28);
         editH_a = new QDoubleSpinBox(groupBox_4);
         editH_a->setObjectName(QStringLiteral("editH_a"));
         editH_a->setGeometry(QRect(160, 50, 51, 22));
+        editH_a->setMinimum(8);
+        editH_a->setMaximum(27);
         editH_a->setValue(16);
         groupBox_5 = new QGroupBox(Settings);
         groupBox_5->setObjectName(QStringLiteral("groupBox_5"));
-        groupBox_5->setGeometry(QRect(250, 200, 221, 81));
+        groupBox_5->setGeometry(QRect(250, 230, 221, 81));
         label_7 = new QLabel(groupBox_5);
         label_7->setObjectName(QStringLiteral("label_7"));
         label_7->setGeometry(QRect(10, 50, 151, 21));
@@ -164,7 +177,7 @@ public:
         waterT->setValue(30);
         groupBox_8 = new QGroupBox(Settings);
         groupBox_8->setObjectName(QStringLiteral("groupBox_8"));
-        groupBox_8->setGeometry(QRect(10, 110, 461, 81));
+        groupBox_8->setGeometry(QRect(10, 110, 461, 111));
         label_4 = new QLabel(groupBox_8);
         label_4->setObjectName(QStringLiteral("label_4"));
         label_4->setGeometry(QRect(10, 20, 101, 21));
@@ -213,9 +226,23 @@ public:
         label_14 = new QLabel(groupBox_8);
         label_14->setObjectName(QStringLiteral("label_14"));
         label_14->setGeometry(QRect(220, 50, 181, 20));
+        mmToHeat = new QSpinBox(groupBox_8);
+        mmToHeat->setObjectName(QStringLiteral("mmToHeat"));
+        mmToHeat->setGeometry(QRect(160, 80, 51, 22));
+        mmToHeat->setMinimum(10);
+        mmToHeat->setMaximum(450);
+        mmToHeat->setValue(40);
+        label_15 = new QLabel(groupBox_8);
+        label_15->setObjectName(QStringLiteral("label_15"));
+        label_15->setGeometry(QRect(10, 80, 141, 21));
         pushButton = new QPushButton(Settings);
         pushButton->setObjectName(QStringLiteral("pushButton"));
-        pushButton->setGeometry(QRect(110, 290, 261, 41));
+        pushButton->setGeometry(QRect(10, 320, 221, 31));
+        pushButton->setAutoDefault(false);
+        pushButton->setFlat(false);
+        pushButton_2 = new QPushButton(Settings);
+        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
+        pushButton_2->setGeometry(QRect(250, 320, 221, 31));
 
         retranslateUi(Settings);
 
@@ -224,7 +251,7 @@ public:
 
     void retranslateUi(QDialog *Settings)
     {
-        Settings->setWindowTitle(QApplication::translate("Settings", "\320\235\320\260\321\201\321\202\321\200\320\276\320\271\320\272\320\270", Q_NULLPTR));
+        Settings->setWindowTitle(QApplication::translate("Settings", "\320\237\320\260\321\200\320\260\320\274\320\265\321\202\321\200\321\213", Q_NULLPTR));
         groupBox->setTitle(QApplication::translate("Settings", "\320\237\320\260\321\200\320\260\320\274\320\265\321\202\321\200\321\213 \320\274\320\265\321\202\320\260\320\273\320\273\320\260", Q_NULLPTR));
         label_8->setText(QApplication::translate("Settings", "\320\237\320\276\320\273\320\276\321\201\320\260", Q_NULLPTR));
         label_12->setText(QApplication::translate("Settings", "\320\242\320\265\320\277\320\273\320\276\320\265\320\274\320\272\320\276\321\201\321\202\321\214", Q_NULLPTR));
@@ -243,7 +270,9 @@ public:
         label_5->setText(QApplication::translate("Settings", "\320\242\320\276\321\207\320\265\320\272 \320\277\320\276 phi", Q_NULLPTR));
         label_13->setText(QApplication::translate("Settings", "\320\222\321\200\320\265\320\274\321\217 \320\274\320\276\320\264\320\265\320\273\320\270\321\200\320\276\320\262\320\260\320\275\320\270\321\217, \320\274\320\270\320\275", Q_NULLPTR));
         label_14->setText(QApplication::translate("Settings", "\320\241\320\272\320\276\321\200\320\276\321\201\321\202\321\214 \320\262\321\200\320\260\321\211\320\265\320\275\320\270\321\217 \320\262\320\260\320\273\320\272\320\260, \320\276\320\261/\320\274\320\270\320\275", Q_NULLPTR));
-        pushButton->setText(QApplication::translate("Settings", "\320\241\320\276\321\205\321\200\320\260\320\275\320\270\321\202\321\214 \320\275\320\260\321\201\321\202\321\200\320\276\320\271\320\272\320\270", Q_NULLPTR));
+        label_15->setText(QApplication::translate("Settings", "\320\242\320\276\320\273\321\211\320\270\320\275\320\260 \321\200\320\260\320\261\320\276\321\207\320\265\320\263\320\276 \321\201\320\273\320\276\321\217, \320\274\320\274", Q_NULLPTR));
+        pushButton->setText(QApplication::translate("Settings", "\320\241\320\276\321\205\321\200\320\260\320\275\320\270\321\202\321\214 \320\270 \320\277\321\200\320\270\320\274\320\265\320\275\320\270\321\202\321\214 \320\277\320\260\321\200\320\260\320\274\320\265\321\202\321\200\321\213", Q_NULLPTR));
+        pushButton_2->setText(QApplication::translate("Settings", "\320\227\320\260\320\263\321\200\321\203\320\267\320\270\321\202\321\214 \320\277\320\260\321\200\320\260\320\274\320\265\321\202\321\200\321\213 \320\270\320\267 \321\204\320\260\320\271\320\273\320\260", Q_NULLPTR));
     } // retranslateUi
 
 };

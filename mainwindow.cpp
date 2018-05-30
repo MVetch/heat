@@ -8,9 +8,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(ui->pushButton,   SIGNAL(clicked()),   this, SLOT(onClick()));
-    connect(ui->action_Qt,    SIGNAL(triggered()), this, SLOT(aboutQt()));
-    connect(ui->openSettings, SIGNAL(triggered()), this, SLOT(on_openSettings_tiggered()));
+    connect(ui->pushButton, SIGNAL(clicked()),   this, SLOT(onClick()));
+    connect(ui->action_Qt,  SIGNAL(triggered()), this, SLOT(aboutQt()));
+    connect(ui->callHelp,   SIGNAL(triggered()), this, SLOT(callHelp()));
+    connect(ui->openSettingsButton,   SIGNAL(clicked()), this, SLOT(on_openSettings_triggered()));
     //this->setStyleSheet("*{font-size:10px;}");
 
 }
@@ -19,18 +20,22 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete colors;
-    //delete de;
-}
-
-QJsonObject MainWindow::loadSettings()
-{
-    QFile fsettigs(Settings::saveFileName);
-    fsettigs.open(QIODevice::ReadOnly);
-    return QJsonDocument(QJsonDocument::fromJson(fsettigs.readAll())).object();
 }
 
 void MainWindow::aboutQt(){
     QMessageBox::aboutQt(this);
+}
+
+void MainWindow::callHelp()
+{
+    QStringList nameFilter("*.chm");
+    QDir directory;
+    QStringList txtFilesAndDirectories = directory.entryList(nameFilter);
+    if(txtFilesAndDirectories.isEmpty()){
+        QMessageBox::critical(this, "Ошибка!", "Файл со справкой не найден!");
+        return;
+    }
+    QDesktopServices::openUrl(QUrl(txtFilesAndDirectories[0]));
 }
 
 void MainWindow::clean()
@@ -114,10 +119,11 @@ void MainWindow::output(diffEquation *de)
     ui->tableWidget->setHorizontalHeaderItem(de->Mcont + 1, new QTableWidgetItem("Окалина"));
 
     //===============================график q()===============================
-    QVector<double> x(de->N), y(de->N); //Массивы координат точек
+    N = de->N + 1;
+    QVector<double> x(N), y(N); //Массивы координат точек
     double maxY = 0, minY = 1e90;
 
-    for (int i = 0; i < de->N; i++){
+    for (int i = 0; i < N; i++){
         x[i] = i;
         y[i] = de->q(i);
         if(y[i] > maxY) maxY = y[i];
@@ -126,7 +132,7 @@ void MainWindow::output(diffEquation *de)
     buildPlot(
                 *ui->widget_q,
                 QVector<Plot>({Plot(x, y, QString("Тепловой поток"))}),
-                QPair<double, double>(0, de->N-1),
+                QPair<double, double>(0, N-1),
                 QPair<double, double>(minY, maxY),
                 QString("Номер точки  по длине очага"),
                 QString("Вт/м^2")
@@ -135,14 +141,14 @@ void MainWindow::output(diffEquation *de)
     //===============================график px()===============================
     maxY = 0, minY = 1e90;
 
-    for (int i = 0; i < de->N; i++){
+    for (int i = 0; i < N; i++){
         if(de->pxCont[i] > maxY) maxY = de->pxCont[i];
         if(de->pxCont[i] < minY) minY = de->pxCont[i];
     }
     buildPlot(
                 *ui->widget_px,
                 QVector<Plot>({Plot(x, de->pxCont, QString("Нормальное давление"))}),
-                QPair<double, double>(0, de->N-1),
+                QPair<double, double>(0, N-1),
                 QPair<double, double>(minY/2, maxY*1.2),
                 QString("Номер точки  по длине очага"),
                 QString("МН/м^2"),
@@ -152,7 +158,7 @@ void MainWindow::output(diffEquation *de)
     //===============================график KDef===============================
     maxY = 0, minY = 1e90;
 
-    for (int i = 0; i < de->N; i++){
+    for (int i = 0; i < N; i++){
         y[i] = de->Kdef(i * de->theta);
         if(y[i] > maxY) maxY = y[i];
         if(y[i] < minY) minY = y[i];
@@ -160,7 +166,7 @@ void MainWindow::output(diffEquation *de)
     buildPlot(
                 *ui->widget_KDef,
                 QVector<Plot>({Plot(x, y, QString("Сопротивление деформации"))}),
-                QPair<double, double>(0, de->N-1),
+                QPair<double, double>(0, N-1),
                 QPair<double, double>(minY/2, maxY*1.2),
                 QString("Номер точки  по длине очага"),
                 QString("МН/м^2")
@@ -168,14 +174,14 @@ void MainWindow::output(diffEquation *de)
 
     //===============================график tauCont===============================
     maxY = 0, minY = 1e90;
-    for (int i = 0; i < de->N; i++){
+    for (int i = 0; i < N; i++){
         if(de->tauContAbs[i] > maxY) maxY = de->tauContAbs[i];
         if(de->tauContAbs[i] < minY) minY = de->tauContAbs[i];
     }// c tauShear не сверяю, потому что область показа функции все равно определяет только tauContAbs
     buildPlot(
                 *ui->widget_tauCont,
                 QVector<Plot>({Plot(x, de->tauContAbs, QString("Касательное давление")), Plot(x, de->tauShear, QString("Предел текучести"))}),
-                QPair<double, double>(0, de->N-1),
+                QPair<double, double>(0, N-1),
                 QPair<double, double>(minY/2, maxY*1.2),
                 QString("Номер точки  по длине очага"),
                 QString("МН/м^2"),
@@ -187,7 +193,7 @@ void MainWindow::output(diffEquation *de)
     maxY = 0, minY = 1e90;
     x.resize(de->MUpdate(de->getFocus().phi_max, de->h)-2 - de->Mcont);
     y.resize(de->MUpdate(de->getFocus().phi_max, de->h)-2 - de->Mcont);
-    int index = de->N - 1;
+    int index = N - 1;
     for (int i = 0; i < x.size(); i++){
         x[i] = i + de->Mcont;
         y[i] = res[index][i + de->Mcont];
@@ -223,12 +229,13 @@ void MainWindow::output(diffEquation *de)
     //===============================Сообщение в конце===============================
     QMessageBox msgBox;
 
-    msgBox.setText("Посчиталось!");
-    msgBox.setStyleSheet("QLabel{min-width: 300px;}");
+    //msgBox.setText("Посчиталось!");
+    msgBox.setWindowTitle("Расчет завершен!");
+    msgBox.setStyleSheet("QLabel{min-width: 250px;}");
 
-    msgBox.setInformativeText("phi ∈ [0; " + QString::number(de->getFocus().phi_max) +"] рад.\n"+
+    msgBox.setText("phi ∈ [0; " + QString::number(de->getFocus().phi_max) +"] рад.\n"+
                               "phi ∈ [0; " + QString::number(de->getFocus().phi_max*180/M_PI) +"] °\n"+
-                              "t ∈ [0; " + QString::number(de->getFocus().phi_max / de->getFocus().getRoll().getR() / 73 * 60) +"] c\n"+
+                              "t ∈ [0; " + QString::number(de->getFocus().phi_max / de->getFocus().getRoll().getR() / de->getFocus().getRoll().getSpeed()) +"] c\n"+
                               "Номер точки стыка: " + QString::number(de->Mcont + 1)+"\n"+
                               "Шаг по r: " + QString::number(de->h)+"\n"+
                               "Шаг по phi: " + QString::number(de->theta)+"\n"+
@@ -236,7 +243,7 @@ void MainWindow::output(diffEquation *de)
                               //"Решалось " + QString::number(timeDifur) + "c."+"\n"+
                               //"Решалось2 " + QString::number(timeDifur2) + "c."
                               );
-    //msgBox.setDetailedText(info);
+    msgBox.setDetailedText(info);
     msgBox.setStandardButtons(QMessageBox::Close);
     msgBox.exec();
 
@@ -247,6 +254,8 @@ void MainWindow::output(diffEquation *de)
 void MainWindow::showError(QString err)
 {
     QMessageBox::critical(this, "Ошибка!", err);
+    thread->quit();
+    ui->pushButton->setEnabled(true);
 }
 
 void MainWindow::updateProgressBar(int value)
@@ -258,6 +267,7 @@ void MainWindow::updateProgressBar(int value)
 void MainWindow::updateProgressBarMaxValue(int value)
 {
     ui->progressBar->setMaximum(value);
+    ui->progressBar->setTextVisible(true);
 }
 
 void MainWindow::onClick(){
@@ -277,24 +287,11 @@ void MainWindow::onClick(){
     connect(calculator, SIGNAL (finished()), calculator, SLOT (deleteLater()));
     connect(thread,     SIGNAL (finished()), thread,     SLOT (deleteLater()));
 
-    //calculator->settings = loadSettings();
-    //calculator->moveToThread(thread);
     thread->start();
 
     ui->pushButton->setEnabled(false);
 }
 
-double MainWindow::X(double r, double phi){
-    return r*qCos(phi);
-}
-double MainWindow::Y(double r, double phi){
-    return r*qSin(phi);
-}
-
-void MainWindow::on_pushButton_clicked()
-{
-
-}
 void MainWindow::buildPlot(
         QCustomPlot& widget,
         QVector<Plot> plots,
@@ -343,11 +340,18 @@ void MainWindow::buildPlot(
     widget.replot();
 }
 
-void MainWindow::on_openSettings_tiggered()
+void MainWindow::on_openSettings_triggered()
 {
     Settings *settings = new Settings();
     settings->setModal(true);
-    settings->load();
+    //settings->setWindowModality(Qt::ApplicationModal);
+    settings->loadLocal();
     settings->show();
+}
 
+void MainWindow::on_loadSettings_triggered()
+{
+    Settings *settings = new Settings();
+    settings->on_pushButton_2_clicked();
+    delete settings;
 }

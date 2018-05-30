@@ -4,8 +4,7 @@ MainCalculator::MainCalculator()
 {
     settings = loadSettings();
     if(settings.size() < Settings::amountOfSettings) {
-        //QMessageBox::critical(this, "Ошибка!", "Настройки не загружены!");
-        emit error("Настройки не загружены!");
+        loaded = false;
         return;
     }
     double R = settings.value("R").toDouble();
@@ -13,7 +12,9 @@ MainCalculator::MainCalculator()
                 R,
                 settings.value("rho_v").toDouble(),
                 settings.value("c_v").toDouble(),
-                settings.value("lambda_v").toDouble()
+                settings.value("lambda_v").toDouble(),
+                settings.value("vSpin").toDouble() / 60,
+                settings.value("mmToHeat").toDouble() / 1000
               );
 
     double h_b = settings.value("h_b").toDouble();
@@ -49,6 +50,10 @@ QJsonObject MainCalculator::loadSettings()
 
 void MainCalculator::calc()
 {
+    if(!loaded) {
+        emit error("Настройки не загружены!");
+        return;
+    }
     QVector<double> TRoll;
     Focus focus = de->getFocus();
     int N = de->N + de->Nnonfocus;

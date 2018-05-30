@@ -1,15 +1,16 @@
 #include "settings.h"
 #include "ui_settings.h"
 
-QString Settings::saveFileName = "settings.json";
+QString Settings::saveFileName = "settings/localSettings.hrp";
 
-int Settings::amountOfSettings = 15;
+int Settings::amountOfSettings = 16;
 
 Settings::Settings(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::Settings)
 {
     ui->setupUi(this);
+    this->setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
 Settings::~Settings()
@@ -31,7 +32,10 @@ void Settings::writeFocus(QJsonObject &json)
             ui->hStep->text() == "" ||
             ui->thetaStep->text() == "" ||
             ui->airT->text() == "" ||
-            ui->waterT->text() == ""){
+            ui->waterT->text() == "" ||
+            ui->timeToModel->text() == "" ||
+            ui->vSpin->text() == "" ||
+            ui->mmToHeat->text() == ""){
         QMessageBox::critical(this, "Ошибка!", "Не все поля заполнены!");
     } else {
         json["R"] = ui->lineRad->value()/1000;
@@ -55,14 +59,16 @@ void Settings::writeFocus(QJsonObject &json)
 
         json["timeToModel"] = ui->timeToModel->value();
         json["vSpin"] = ui->vSpin->value();
+
+        json["mmToHeat"] = ui->mmToHeat->value();
     }
 }
 
-void Settings::load()
+void Settings::load(QString filename)
 {
-    QFile fsettigs(Settings::saveFileName);
+    QFile fsettigs(filename);
     fsettigs.open(QIODevice::ReadOnly);
-    QJsonObject fobj = QJsonDocument(QJsonDocument::fromJson(fsettigs.readAll())).object();
+    QJsonObject fobj = fsettigs.exists()?QJsonDocument(QJsonDocument::fromJson(fsettigs.readAll())).object():QJsonObject();
     if(!fobj.value("R").isUndefined()){
         ui->lineRad->setValue(fobj.value("R").toDouble() * 1000);
     }
@@ -108,9 +114,21 @@ void Settings::load()
     if(!fobj.value("vSpin").isUndefined()){
         ui->vSpin->setValue(fobj.value("vSpin").toDouble());
     }
+    if(!fobj.value("mmToHeat").isUndefined()){
+        ui->mmToHeat->setValue(fobj.value("mmToHeat").toDouble());
+    }
 }
 
-void Settings::on_pushButton_clicked()
+void Settings::loadLocal()
+{
+    QDir dir("settings");
+    if(!dir.exists()){
+        dir.mkdir("../settings");
+    }
+    this->load(Settings::saveFileName);
+}
+
+void Settings::saveLocal()
 {
     QJsonObject settings;
     writeFocus(settings);
@@ -120,5 +138,31 @@ void Settings::on_pushButton_clicked()
         QFile saveFile(saveFileName);
         saveFile.open(QIODevice::WriteOnly);
         saveFile.write(saveDoc.toJson());
+    }
+}
+
+void Settings::on_pushButton_clicked()
+{
+    this->saveLocal();
+    this->close();
+}
+
+void Settings::on_lineRad_valueChanged(double arg1)
+{
+    ui->mmToHeat->setMaximum((int)arg1);
+}
+
+void Settings::on_editH_b_valueChanged(double arg1)
+{
+    ui->editH_a->setMaximum(arg1-1);
+}
+
+void Settings::on_pushButton_2_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Загрузить настройки"), "", tr("Файл настроек (*.hrp)"));
+    if(!fileName.isEmpty()){
+        this->load(fileName);
+        this->saveLocal();
     }
 }
