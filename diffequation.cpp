@@ -252,7 +252,7 @@ void diffEquation::solveNonFocus(double emulT)
 
     double a_wr = lambda_wr / (rho_wr * c_wr);
 
-    double k = 100;
+    double k = 700;
 
     double b = -theta * a_wr / (h * h);
     double c = 1 + 2 * theta * a_wr / (h * h);
@@ -276,7 +276,7 @@ void diffEquation::solveNonFocus(double emulT)
             r[j] = u[N + i][j+1];
         }
         r[0] += theta * a_wr / (h * h) * u[0][0]; //умножить на t в центре валка
-        r[Mcont - 3] += theta * a_wr * emulT / (h * (1 + k * h));
+        r[Mcont - 3] += theta * a_wr * emulT * k / (h * (1 + k * h));
 
 
         delta [0] = -d / c;
@@ -295,7 +295,7 @@ void diffEquation::solveNonFocus(double emulT)
             u[N + i + 1][j] = delta[j-1] * u[N + i + 1][j+1] + lambda[j-1];
         }
 
-        u[N + i + 1][Mcont - 1] = (u[N + i + 1][Mcont - 2] + h * emulT) / (1 + k * h);
+        u[N + i + 1][Mcont - 1] = (u[N + i + 1][Mcont - 2] + h * emulT * k) / (1 + k * h);
     }
     delete[] lambda;
     delete[] delta;
