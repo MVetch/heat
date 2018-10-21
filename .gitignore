@@ -3,3 +3,5 @@ Makefile*
 *release*
 *.use*
 /*.hrp
+*.csv
+*.xlsx

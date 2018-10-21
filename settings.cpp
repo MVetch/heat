@@ -11,6 +11,35 @@ Settings::Settings(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    this->ui->injectorsInfo->setColumnWidth(0, 170);
+    this->ui->injectorsInfo->setColumnWidth(1, 80);
+    this->ui->injectorsInfo->setColumnWidth(2, 90);
+    for (int i = 0; i < ui->injectorsInfo->rowCount(); i++)
+    {
+        QDoubleSpinBox *sb = new QDoubleSpinBox(ui->injectorsInfo);
+        sb->setMaximum(400);
+        sb->setMinimum(10);
+        sb->setSingleStep(0.1);
+        sb->setDecimals(1);
+        sb->setValue(ui->injectorsInfo->item(i, 0)->text().replace(",", ".").toDouble());
+        ui->injectorsInfo->setCellWidget(i, 0, sb);
+
+        sb = new QDoubleSpinBox(ui->injectorsInfo);
+        sb->setMaximum(360);
+        sb->setMinimum(10);
+        sb->setSingleStep(0.1);
+        sb->setDecimals(2);
+        sb->setValue(ui->injectorsInfo->item(i, 1)->text().replace(",", ".").toDouble());
+        ui->injectorsInfo->setCellWidget(i, 1, sb);
+
+        sb = new QDoubleSpinBox(ui->injectorsInfo);
+        sb->setMaximum(40);
+        sb->setMinimum(1);
+        sb->setSingleStep(0.01);
+        sb->setDecimals(2);
+        sb->setValue(ui->injectorsInfo->item(i, 2)->text().replace(",", ".").toDouble());
+        ui->injectorsInfo->setCellWidget(i, 2, sb);
+    }
 }
 
 Settings::~Settings()
@@ -31,7 +60,6 @@ void Settings::writeFocus(QJsonObject &json)
             ui->editH_a->text() == "" ||
             ui->hStep->text() == "" ||
             ui->thetaStep->text() == "" ||
-            ui->airT->text() == "" ||
             ui->waterT->text() == "" ||
             ui->timeToModel->text() == "" ||
             ui->vSpin->text() == "" ||
@@ -54,8 +82,17 @@ void Settings::writeFocus(QJsonObject &json)
         json["M"] = ui->hStep->value();
         json["N"] = ui->thetaStep->value();
 
-        json["airT"] = ui->airT->value();
         json["waterT"] = ui->waterT->value();
+        QJsonArray injDens;
+        for (int i = 0; i < ui->injectorsInfo->rowCount(); i++)
+        {
+            QJsonObject temp;
+            temp.insert(QStringLiteral("density"),    ((QDoubleSpinBox *)ui->injectorsInfo->cellWidget(i, 0))->value());
+            temp.insert(QStringLiteral("angleStart"), ((QDoubleSpinBox *)ui->injectorsInfo->cellWidget(i, 1))->value());
+            temp.insert(QStringLiteral("angleSize"),  ((QDoubleSpinBox *)ui->injectorsInfo->cellWidget(i, 2))->value());
+            injDens.push_back(temp);
+        }
+        json["injectors"] = injDens;
 
         json["timeToModel"] = ui->timeToModel->value();
         json["vSpin"] = ui->vSpin->value();
@@ -102,11 +139,38 @@ void Settings::load(QString filename)
     if(!fobj.value("N").isUndefined()){
         ui->thetaStep->setValue(fobj.value("N").toInt());
     }
-    if(!fobj.value("airT").isUndefined()){
-        ui->airT->setValue(fobj.value("airT").toDouble());
-    }
     if(!fobj.value("waterT").isUndefined()){
         ui->waterT->setValue(fobj.value("waterT").toDouble());
+    }
+    if(!fobj.value("injectors").isUndefined()){
+        QJsonArray injectors = fobj.value("injectors").toArray();
+        ui->injectorsCount->setValue(injectors.size());
+        for (int i = 0; i < ui->injectorsCount->value(); i++)
+        {
+            QDoubleSpinBox *sb = new QDoubleSpinBox(ui->injectorsInfo);
+            sb->setMaximum(400);
+            sb->setMinimum(10);
+            sb->setSingleStep(0.1);
+            sb->setDecimals(1);
+            sb->setValue(injectors[i].toObject()["density"].toDouble());
+            ui->injectorsInfo->setCellWidget(i, 0, sb);
+
+            sb = new QDoubleSpinBox(ui->injectorsInfo);
+            sb->setMaximum(360);
+            sb->setMinimum(10);
+            sb->setSingleStep(0.1);
+            sb->setDecimals(2);
+            sb->setValue(injectors[i].toObject()["angleStart"].toDouble());
+            ui->injectorsInfo->setCellWidget(i, 1, sb);
+
+            sb = new QDoubleSpinBox(ui->injectorsInfo);
+            sb->setMaximum(40);
+            sb->setMinimum(1);
+            sb->setSingleStep(0.01);
+            sb->setDecimals(2);
+            sb->setValue(injectors[i].toObject()["angleSize"].toDouble());
+            ui->injectorsInfo->setCellWidget(i, 2, sb);
+        }
     }
     if(!fobj.value("timeToModel").isUndefined()){
         ui->timeToModel->setValue(fobj.value("timeToModel").toDouble());
@@ -128,22 +192,34 @@ void Settings::loadLocal()
     this->load(Settings::saveFileName);
 }
 
-void Settings::saveLocal()
+void Settings::save(QString fn)
 {
     QJsonObject settings;
     writeFocus(settings);
     if(!settings.empty())
     {
         QJsonDocument saveDoc(settings);
-        QFile saveFile(saveFileName);
-        saveFile.open(QIODevice::WriteOnly);
-        saveFile.write(saveDoc.toJson());
+        QFile saveFile(fn);
+        if(saveFile.open(QIODevice::WriteOnly))
+            saveFile.write(saveDoc.toJson());
     }
+}
+
+void Settings::saveLocal()
+{
+    this->save(saveFileName);
 }
 
 void Settings::on_pushButton_clicked()
 {
     this->saveLocal();
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                   tr("Сохранить параметры"), "",
+                                                   tr("Файл параметров (*.hrp)"));
+    if (!fileName.isEmpty())
+    {
+        this->save(fileName);
+    }
     this->close();
 }
 
@@ -160,9 +236,50 @@ void Settings::on_editH_b_valueChanged(double arg1)
 void Settings::on_pushButton_2_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Загрузить настройки"), "", tr("Файл настроек (*.hrp)"));
+        tr("Загрузить параметры"), "", tr("Файл параметров (*.hrp)"));
     if(!fileName.isEmpty()){
         this->load(fileName);
         this->saveLocal();
+    }
+}
+
+void Settings::on_injectorsCount_valueChanged(int value)
+{
+    while (ui->injectorsInfo->rowCount() < value)
+    {
+        int rowcount = ui->injectorsInfo->rowCount();
+        ui->injectorsInfo->setRowCount(rowcount + 1);
+    }
+    ui->injectorsInfo->setRowCount(value);
+
+    for (int i = 0; i < ui->injectorsInfo->rowCount(); i++)
+    {
+        if (!(ui->injectorsInfo->item(i, 0)))
+        {
+            QDoubleSpinBox *sb = new QDoubleSpinBox(ui->injectorsInfo);
+            sb->setMaximum(400);
+            sb->setMinimum(10);
+            sb->setSingleStep(0.1);
+            sb->setDecimals(1);
+            sb->setValue(100);
+            ui->injectorsInfo->setCellWidget(i, 0, sb);
+
+            sb = new QDoubleSpinBox(ui->injectorsInfo);
+            sb->setMaximum(360);
+            sb->setMinimum(10);
+            sb->setSingleStep(0.1);
+            sb->setDecimals(2);
+            sb->setValue(10);
+            ui->injectorsInfo->setCellWidget(i, 1, sb);
+
+            sb = new QDoubleSpinBox(ui->injectorsInfo);
+            sb->setMaximum(40);
+            sb->setMinimum(1);
+            sb->setSingleStep(0.01);
+            sb->setDecimals(2);
+            sb->setValue(5.5);
+            ui->injectorsInfo->setCellWidget(i, 2, sb);
+            //ui->injectorsInfo->setItem(i, 0, (new QTableWidgetItem(QString::number(100)))->setTextAlignment(););
+        }
     }
 }

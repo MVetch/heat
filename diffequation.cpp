@@ -8,11 +8,13 @@ diffEquation::diffEquation()
 diffEquation::diffEquation(
         int M,
         int N,
-        Focus f
+        Focus f,
+        QVector<Injector> injectors
 )
 {
     this->M = M;
     this->focus = f;
+    this->injectors = injectors;
 
     this->h = (focus.r_max - focus.getRoll().getR() + focus.getRoll().countmmToHeat()) / M;
     this->Mcont = MUpdate(0, h);
@@ -26,7 +28,7 @@ diffEquation::diffEquation(
         this->u[i] = new double[M-2];
     }
     for(int i = 0; i < this->Nnonfocus; i++){
-        this->u[this->N + i + 1] = new double[Mcont];
+        this->u[this->N + i + 1] = new double[Mcont+1];
     }
 
     double sigmaF = 0.059;
@@ -34,23 +36,30 @@ diffEquation::diffEquation(
     double pXin = Kdef(0) - sigmaB * 9.8;
     double pXout = Kdef(focus.phi_max) - sigmaF * 9.8;
     double mu = 0.24;
-    px0.push_back(pXin);
+    px0 = new double[this->N+1];
+    px1 = new double[this->N+1];
+    pxCont = new double[this->N+1];
+    tauCont = new double[this->N+1];
+    tauContAbs = new double[this->N+1];
+    tauShear = new double[this->N+1];
+    fValue = new double[this->N+1];
+    qValue = new double[this->N+1];
+    //px0.push_back(pXin);
+    px0[0] = pXin;
     for(int i = 1; i <= this->N; i++){
-        px0.push_back(
+        px0[i] =
             px0[i-1] + (Kdef(i * theta) - Kdef((i - 1) * theta)) + Kdef((i - 1) * theta) * focus.epsH(
                                                                                     focus.curH((i - 1) * theta),
                                                                                     focus.curH(i * theta)
-                                                                                   ) + mu * theta * px0[i-1] / focus.curH(i * theta)
-        );
+                                                                                   ) + mu * theta * px0[i-1] / focus.curH(i * theta);
     }
-    px1.push_back(pXout);
+    px1[0] = pXout;
     for(int i = 1; i <= this->N; i++){
-        px1.push_back(
+        px1[i] =
             px1[i-1] - (Kdef(i * theta) - Kdef((i - 1) * theta)) + Kdef((i - 1) * theta) * focus.epsH(
                                                                                     focus.curH((this->N - (i - 1)) * theta),
                                                                                     focus.curH((this->N - i) * theta)
-                                                                                   ) + mu * theta * px1[i-1] / focus.curH((this->N - i) * theta)
-        );
+                                                                                   ) + mu * theta * px1[i-1] / focus.curH((this->N - i) * theta);
     }
     double temp = 0;
     Nneutr = 0;
@@ -58,25 +67,29 @@ diffEquation::diffEquation(
         temp = qMin(px0[i], px1[this->N - i]);
         if(temp == px1[this->N - i] && Nneutr == 0) Nneutr = i-1;
 
-        pxCont.push_back(temp);
-        tauContAbs.push_back(mu * pxCont[i]);
-        tauShear.push_back(Kdef(i * theta) / 1.15 / 2);
+        pxCont[i] = temp;
+        tauContAbs[i] = mu * pxCont[i];
+        tauShear[i] = Kdef(i * theta) / 1.15 / 2;
     }
     NBack = 0, NForward = 0;
     for(int i = 0; i < Nneutr; i++){
         temp = qMin(tauContAbs[i], tauShear[i]);
-        tauCont.push_back(temp);
+        tauCont[i] = temp;
         if(temp == tauShear[i] && NBack == 0) NBack = i-1;
     }
     for(int i = Nneutr; i <= this->N; i++){
         temp = -qMin(tauContAbs[i], tauShear[i]);
-        tauCont.push_back(-temp);
+        tauCont[i] = -temp;
         if(-temp == tauContAbs[i] && NForward == 0) NForward = i-1;
+    }
+    for(int i = 0; i <= this->N; i++){
+        fValue[i] = this->f(i) / (focus.getRoll().getSpeed() / focus.getRoll().getR());
+        qValue[i] = q(i);
     }
 }
 
 diffEquation::diffEquation(const diffEquation &other):
-     diffEquation(other.M, other.N + other.Nnonfocus, other.focus)
+     diffEquation(other.M, other.N + other.Nnonfocus + 1, other.focus, other.injectors)
 {
     beta1 = other.beta1;
     beta2 = other.beta2;
@@ -100,9 +113,16 @@ diffEquation::~diffEquation(){
         delete[] this->u[i];
     }
     delete[] u;
+    delete[] px0;
+    delete[] px1;
+    delete[] tauCont;
+    delete[] tauContAbs;
+    delete[] tauShear;
+    delete[] fValue;
+    delete[] qValue;
 }
 
-double diffEquation::f(int i, int j){
+double diffEquation::f(int i){
     return 1000000 * 0.85 / focus.getStrip().getC() / focus.getStrip().getRho() * Kdef(i * theta) * qLn(focus.getHBefore() / focus.getHAfter());
 }
 double diffEquation::q(int i){
@@ -138,8 +158,8 @@ void diffEquation::solveFocus()
     double rho_s = focus.getStrip().getRho();
     double c_s = focus.getStrip().getC();
 
-    double a_wr = lambda_wr / (rho_wr * c_wr);
-    double a_s  = lambda_s  / (rho_s  * c_s );
+    double a_wr = lambda_wr / (rho_wr * c_wr * (focus.getRoll().getSpeed() / focus.getRoll().getR()));
+    double a_s  = lambda_s  / (rho_s  * c_s  * (focus.getRoll().getSpeed() / focus.getRoll().getR()));
     double lambda_sc = focus.getScale().lambda;
 
     double *lambda = new double[M-4];
@@ -160,7 +180,8 @@ void diffEquation::solveFocus()
     double dm_s = -theta * a_s / (h * h);
 
     double bm_wr = -theta * a_wr / (h * h);
-    double cm_wr = 1 + 2 * theta * a_wr / (h * h);
+    double cm_wr  = 1 + 2 * theta * a_wr / (h * h);
+    double cm_wr1 = 1 +     theta * a_wr / (h * h);
     double dm_wr = -theta * a_wr / (h * h);
 
     double bm_mcontm1 = bm_wr;
@@ -183,33 +204,32 @@ void diffEquation::solveFocus()
     for(int i = 0; i < N; i++){ // значения на остальных слоях
         angle = i * theta;
         Mcur = qMax(MUpdate(angle, h) - 2 - 2, Mcont);//тут сразу отнимаем двойку, чтобы следовать размеру матрицы А
-
+        //u[i+1][0] = 20; //температура в центре валка
         // граничные условия
-        u[i+1][0] = focus.getRoll().initT(0); //температура в центре валка
         for(int j = Mcur-1; j < M - 2; j++){
             u[i+1][j] = focus.getStrip().initT(j + 2);
         }
         for(int j = 0; j < Mcur; j++){
             r[j] = u[i][j+1];
             if(j + 1 >= Mcont){
-                r[j] += theta * f(i, j + 1);//расчет правой части СЛАУ
+                r[j] += theta * fValue[i];//расчет правой части СЛАУ
             }
         }
         //=========Mcont - 2 последняя точка валка==========//
-        r[Mcont - 2] += q(i+1) * theta * a_wr * focus.getScale().thickness         / (h * (lambda_wr * focus.getScale().thickness + lambda_sc * h)                      );
+        r[Mcont - 2] += qValue[i+1] * theta * a_wr * focus.getScale().thickness         / (h * (lambda_wr * focus.getScale().thickness + lambda_sc * h)                      );
         //=========/Mcont - 2==========//
 
         //=========Mcont - 1 первая точка полосы==========//
-        r[Mcont - 1] += q(i+1) * theta * a_s  * focus.getScale().thickness * beta3 / (h * (lambda_s  * focus.getScale().thickness + lambda_sc * h) * (1 - beta2 * beta3));
+        r[Mcont - 1] += qValue[i+1] * theta * a_s  * focus.getScale().thickness * beta3 / (h * (lambda_s  * focus.getScale().thickness + lambda_sc * h) * (1 - beta2 * beta3));
         //=========/Mcont - 1==========//
 
-        r[0] -= bm_wr * u[0][0]; //умножить на t в центре валка
+        //r[0] -= bm_wr * u[i][0]; //умножить на t в центре валка
 
         if(angle <= focus.beta && Mcur > Mcont-2)
-            r[Mcur-1] -= dm_s * u[0][Mcur];//умножить на начальное значение температуры в глубину полосы
+            r[Mcur-1] -= dm_s * u[i][Mcur];//умножить на начальное значение температуры в глубину полосы
 
-        delta [0] = -dm_wr / cm_wr;
-        lambda[0] =   r[0] / cm_wr;
+        delta [0] = -dm_wr / cm_wr1;
+        lambda[0] =   r[0] / cm_wr1;
 
         for(int j = 1; j < Mcont-2; j++) {
             delta [j] = - dm_wr                      / (cm_wr + bm_wr * delta[j-1]);
@@ -236,6 +256,7 @@ void diffEquation::solveFocus()
         for(int j = Mcur; j > 0; j--){
             u[i+1][j] = delta[j-1] * u[i+1][j+1] + lambda[j-1];
         }
+        u[i+1][0] = u[i+1][1]; //температура в центре валка
         if(angle >= focus.beta)
             u[i+1][Mcur + 1] = u[i+1][Mcur];
     }
@@ -244,58 +265,80 @@ void diffEquation::solveFocus()
     delete[] r;
 }
 
-void diffEquation::solveNonFocus(double emulT)
+void diffEquation::solveNonFocus(int zone, int NStart, int NPart)
 {
+    double emulT = injectors[0].getT();
     double lambda_wr = focus.getRoll().getLambda();
     double rho_wr = focus.getRoll().getRho();
     double c_wr = focus.getRoll().getC();
-
-    double a_wr = lambda_wr / (rho_wr * c_wr);
-
-    double k = 700;
+    double a_wr = lambda_wr / (rho_wr * c_wr * (focus.getRoll().getSpeed() / focus.getRoll().getR()));
+    double k = 100;
+    double TEdge = NStart == 0? beta1 / (1 - beta2 * beta3) * u[N + NStart][Mcont - 1] +
+            beta2 * beta4 / (1 - beta2 * beta3) * u[N + NStart][Mcont] +
+            qValue[N] * focus.getScale().thickness * h / (focus.getRoll().getLambda() * focus.getScale().thickness + focus.getScale().lambda * h) : u[N + NStart][Mcont];
+    if (zone % 2 != 0) {
+        k = (
+                190 + tanh(injectors[qFloor(zone / 2)].getDensity() / 8) *
+                (
+                    140 * injectors[qFloor(zone / 2)].getDensity() * (1 - injectors[qFloor(zone / 2)].getDensity() * (TEdge - emulT) / 72000) +
+                    3.26 * (TEdge - emulT) * (TEdge - emulT) * (1 - tanh((TEdge - emulT) / 128))
+                )
+             ) / lambda_wr;
+    } else {
+        k = 0.0296 *
+            qPow(focus.getRoll().getSpeed(), 4/5) *
+            qPow(this->Nnonfocus * theta * focus.getRoll().getR(), -1/5) *
+            qPow(injectors[0].getViscosity(), 23/15) *
+            qPow(injectors[0].getRho() * injectors[0].getC(), 1/3) *
+            qPow(injectors[0].getLambda(), 4/3) / lambda_wr;
+    }
 
     double b = -theta * a_wr / (h * h);
-    double c = 1 + 2 * theta * a_wr / (h * h);
-    double c2 = c + b / (1 + k * h);
+    double c  = 1 + 2 * theta * a_wr / (h * h);
+    double c1 = 1 +     theta * a_wr / (h * h);
+    double c2 = c - theta * a_wr / (h * h * (1 + k * h));
     double d = -theta * a_wr / (h * h);
 
     //u.resize(N + Nnonfocus + 1);
-    double *lambda = new double[Mcont-2];
-    double *delta = new double[Mcont-2];
-    double *r = new double[Mcont-2];
+    double *lambda = new double[Mcont-1];//Mcont + 1 - 2
+    double *delta = new double[Mcont-1];
+    double *r = new double[Mcont-1];
     //QVector<double> lambda(Mcont-2), delta(Mcont-2), r(Mcont-2);
 
-    for(int i = 0; i < Nnonfocus; i++){ // значения на остальных слоях
+    for(int i = NStart; i < NStart + NPart/*Nnonfocus*/; i++){ // значения на остальных слоях
         //u[N + i + 1].resize(Mcont);
         //u[N + i + 1] = new double[Mcont];
 
         // граничные условия
-        u[N + i + 1][0] = focus.getRoll().initT(0); //температура в центре валка
-
-        for(int j = 0; j < Mcont - 2; j++){
-            r[j] = u[N + i][j+1];
+        //u[N + i + 1][0] = focus.getRoll().initT(0); //температура в центре валка
+        for(int j = 0; j < Mcont - 1; j++){
+            r[j] = u[N + i][j + 1];
         }
-        r[0] += theta * a_wr / (h * h) * u[0][0]; //умножить на t в центре валка
-        r[Mcont - 3] += theta * a_wr * emulT * k / (h * (1 + k * h));
+//        r[Mcont - 2] = beta1 / (1 - beta2 * beta3) * u[N + i][Mcont - 1] +
+//                beta2 * beta4 / (1 - beta2 * beta3) * u[N + i][Mcont] +
+//                qValue[i-1] * focus.getScale().thickness * h / (focus.getRoll().getLambda() * focus.getScale().thickness + focus.getScale().lambda * h);
+        //r[0] += theta * a_wr / (h * h) * u[N + i][0]; //умножить на t в центре валка
+        r[Mcont - 2] += theta * a_wr * emulT * k / (h * (1 + k * h));
 
 
-        delta [0] = -d / c;
-        lambda[0] = r[0] / c;
+        delta [0] = -d / c1;
+        lambda[0] = r[0] / c1;
 
-        for(int j = 1; j < Mcont-3; j++) {
+        for(int j = 1; j < Mcont-2; j++) {
             delta [j] = - d                      / (c + b * delta[j-1]);
             lambda[j] = (r[j] - b * lambda[j-1]) / (c + b * delta[j-1]);
         }
 
-        delta [Mcont - 3] = - d                                    / (c2 + b * delta[Mcont - 4]);
-        lambda[Mcont - 3] = (r[Mcont - 3] - b * lambda[Mcont - 4]) / (c2 + b * delta[Mcont - 4]);
+        delta [Mcont - 2] = - d                                    / (c2 + b * delta[Mcont - 3]);
+        lambda[Mcont - 2] = (r[Mcont - 2] - b * lambda[Mcont - 3]) / (c2 + b * delta[Mcont - 3]);
 
-        u[N + i + 1][Mcont - 2] = lambda[Mcont - 3];
-        for(int j = Mcont - 3; j > 0; j--){
+        u[N + i + 1][Mcont - 1] = lambda[Mcont - 2];
+        for(int j = Mcont - 2; j > 0; j--){
             u[N + i + 1][j] = delta[j-1] * u[N + i + 1][j+1] + lambda[j-1];
         }
+        u[N + i + 1][0] = u[N + i + 1][1]; //температура в центре валка
 
-        u[N + i + 1][Mcont - 1] = (u[N + i + 1][Mcont - 2] + h * emulT * k) / (1 + k * h);
+        u[N + i + 1][Mcont] = (u[N + i + 1][Mcont - 1] + h * emulT * k) / (1 + k * h);
     }
     delete[] lambda;
     delete[] delta;
@@ -329,4 +372,9 @@ void diffEquation::setFocus(Focus& focus)
 Roll diffEquation::getRoll()
 {
     return this->focus.getRoll();
+}
+
+QVector<Injector> diffEquation::getInjectors()
+{
+    return this->injectors;
 }

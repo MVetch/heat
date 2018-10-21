@@ -34,7 +34,8 @@ SOURCES += \
     plot.cpp \
     scale.cpp \
     settings.cpp \
-    maincalculator.cpp
+    maincalculator.cpp \
+    injector.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -46,7 +47,8 @@ HEADERS += \
     plot.h \
     scale.h \
     settings.h \
-    maincalculator.h
+    maincalculator.h \
+    injector.h
 
 FORMS += \
         mainwindow.ui \

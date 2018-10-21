@@ -5,6 +5,8 @@
 #include <QProgressBar>
 #include <QJsonObject>
 #include <QVector>
+#include <QFile>
+#include <QTextStream>
 #include "focus.h"
 #include "diffequation.h"
 #include "settings.h"
@@ -23,6 +25,7 @@ public:
 
 public slots:
     void calc();
+    void finish();
 
 signals:
     void finished();

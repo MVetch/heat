@@ -1,18 +1,59 @@
 {
-    "M": 200,
+    "M": 300,
     "N": 500,
-    "R": 0.45,
-    "airT": 50,
-    "c_p": 481,
+    "R": 0.5,
+    "c_p": 669,
     "c_v": 500,
-    "h_a": 0.016,
-    "h_b": 0.028,
-    "lambda_p": 58,
+    "h_a": 0.02,
+    "h_b": 0.03,
+    "injectors": [
+        {
+            "angleSize": 5.5,
+            "angleStart": 72,
+            "density": 206
+        },
+        {
+            "angleSize": 5.5,
+            "angleStart": 88.6,
+            "density": 206
+        },
+        {
+            "angleSize": 11,
+            "angleStart": 108,
+            "density": 206
+        },
+        {
+            "angleSize": 11,
+            "angleStart": 127.39,
+            "density": 206
+        },
+        {
+            "angleSize": 11,
+            "angleStart": 224,
+            "density": 206
+        },
+        {
+            "angleSize": 11,
+            "angleStart": 243,
+            "density": 206
+        },
+        {
+            "angleSize": 5.5,
+            "angleStart": 262,
+            "density": 206
+        },
+        {
+            "angleSize": 5.5,
+            "angleStart": 279,
+            "density": 206
+        }
+    ],
+    "lambda_p": 27.7,
     "lambda_v": 17,
-    "mmToHeat": 40,
-    "rho_p": 7832,
+    "mmToHeat": 500,
+    "rho_p": 7550,
     "rho_v": 7800,
-    "timeToModel": 60,
-    "vSpin": 10,
+    "timeToModel": 240,
+    "vSpin": 20,
     "waterT": 30
 }

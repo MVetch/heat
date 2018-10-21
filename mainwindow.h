@@ -36,11 +36,14 @@ private slots:
     void on_loadSettings_triggered();
     void aboutQt();
     void callHelp();
-    void clean();
+    void clear();
     void output(diffEquation *de);
     void showError(QString);
     void updateProgressBar(int);
     void updateProgressBarMaxValue(int);
+
+signals:
+    finished();
 
 private:
     Ui::MainWindow *ui;

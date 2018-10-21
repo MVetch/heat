@@ -26,6 +26,7 @@ public:
     void writeFocus(QJsonObject &json);
     void load(QString filename);
     void loadLocal();
+    void save(QString fn);
     void saveLocal();
     static int amountOfSettings;
 
@@ -33,6 +34,8 @@ private slots:
     void on_pushButton_clicked();
     void on_lineRad_valueChanged(double arg1);
     void on_editH_b_valueChanged(double arg1);
+    void on_injectorsCount_valueChanged(int arg1);
+
 public slots:
     void on_pushButton_2_clicked();
 };
