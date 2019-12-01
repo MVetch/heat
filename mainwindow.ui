@@ -25,152 +25,19 @@
   <property name="windowTitle">
    <string>Расчет теплового режима</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../Khak2 (1).png</normaloff>../Khak2 (1).png</iconset>
+  </property>
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>730</x>
-      <y>320</y>
-      <width>351</width>
-      <height>301</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Температура на выходе из очага</string>
-    </property>
-    <widget class="QCustomPlot" name="widget_T" native="true">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>331</width>
-       <height>271</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_2">
-    <property name="geometry">
-     <rect>
-      <x>370</x>
-      <y>320</y>
-      <width>351</width>
-      <height>301</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Тепловой поток</string>
-    </property>
-    <widget class="QCustomPlot" name="widget_q" native="true">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>331</width>
-       <height>271</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_3">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>351</width>
-      <height>301</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Нормальное давление</string>
-    </property>
-    <widget class="QCustomPlot" name="widget_px" native="true">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>331</width>
-       <height>271</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_4">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>320</y>
-      <width>351</width>
-      <height>301</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Сопротивление деформации</string>
-    </property>
-    <widget class="QCustomPlot" name="widget_KDef" native="true">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>331</width>
-       <height>271</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_5">
-    <property name="geometry">
-     <rect>
-      <x>370</x>
-      <y>10</y>
-      <width>351</width>
-      <height>301</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Сила трения</string>
-    </property>
-    <widget class="QCustomPlot" name="widget_tauCont" native="true">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>20</y>
-       <width>331</width>
-       <height>271</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QTableWidget" name="tableWidget">
-    <property name="geometry">
-     <rect>
-      <x>730</x>
-      <y>80</y>
-      <width>351</width>
-      <height>231</height>
-     </rect>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>10000</width>
-      <height>16777215</height>
-     </size>
-    </property>
-    <property name="wordWrap">
-     <bool>false</bool>
-    </property>
-    <property name="cornerButtonEnabled">
-     <bool>false</bool>
-    </property>
-   </widget>
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>730</x>
-      <y>10</y>
+      <x>920</x>
+      <y>590</y>
       <width>161</width>
       <height>31</height>
      </rect>
@@ -182,10 +49,10 @@
    <widget class="QProgressBar" name="progressBar">
     <property name="geometry">
      <rect>
-      <x>730</x>
-      <y>50</y>
-      <width>351</width>
-      <height>23</height>
+      <x>10</x>
+      <y>590</y>
+      <width>731</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="maximum">
@@ -213,14 +80,194 @@
    <widget class="QPushButton" name="openSettingsButton">
     <property name="geometry">
      <rect>
-      <x>920</x>
-      <y>10</y>
+      <x>750</x>
+      <y>590</y>
       <width>161</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
      <string>Параметры</string>
+    </property>
+   </widget>
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1091</width>
+      <height>581</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>Сила трения</string>
+     </attribute>
+     <widget class="QCustomPlot" name="widget_tauCont" native="true">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>1081</width>
+        <height>551</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Сопротивление деформации</string>
+     </attribute>
+     <widget class="QCustomPlot" name="widget_KDef" native="true">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>1081</width>
+        <height>551</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_4">
+     <attribute name="title">
+      <string>Тепловой поток</string>
+     </attribute>
+     <widget class="QCustomPlot" name="widget_q" native="true">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>1081</width>
+        <height>551</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_5">
+     <attribute name="title">
+      <string>Температура на выходе из очага</string>
+     </attribute>
+     <widget class="QCustomPlot" name="widget_T" native="true">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>1081</width>
+        <height>551</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_7">
+     <attribute name="title">
+      <string>Распределение температуры в глубине валка</string>
+     </attribute>
+     <widget class="QCustomPlot" name="widget_TDeep" native="true">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>70</y>
+        <width>1081</width>
+        <height>481</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QSlider" name="sliderDeep">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>30</y>
+        <width>1041</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_deepStart">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_deepMid">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>40</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_deepEnd">
+      <property name="geometry">
+       <rect>
+        <x>1010</x>
+        <y>10</y>
+        <width>51</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_6">
+     <attribute name="title">
+      <string>Таблица</string>
+     </attribute>
+     <widget class="QTableWidget" name="tableWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>1071</width>
+        <height>541</height>
+       </rect>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>10000</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="wordWrap">
+       <bool>false</bool>
+      </property>
+      <property name="cornerButtonEnabled">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="pushButton_stop">
+    <property name="geometry">
+     <rect>
+      <x>920</x>
+      <y>590</y>
+      <width>161</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Остановить</string>
     </property>
    </widget>
   </widget>

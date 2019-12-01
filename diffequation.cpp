@@ -30,6 +30,7 @@ diffEquation::diffEquation(
     for(int i = 0; i < this->Nnonfocus; i++){
         this->u[this->N + i + 1] = new double[Mcont+1];
     }
+    this->u[0][0] = 0;
 
     double sigmaF = 0.059;
     double sigmaB = 0.05;

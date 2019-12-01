@@ -1,7 +1,0 @@
-Makefile*
-*debug*
-*release*
-*.use*
-/*.hrp
-*.csv
-*.xlsx

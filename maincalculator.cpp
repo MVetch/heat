@@ -1,6 +1,17 @@
 #include "maincalculator.h"
 
+
 MainCalculator::MainCalculator()
+{
+}
+
+MainCalculator::~MainCalculator()
+{
+    if(loaded)
+        delete this->de;
+}
+
+void MainCalculator::load()
 {
     settings = loadSettings();
     if(settings.size() < Settings::amountOfSettings) {
@@ -47,11 +58,6 @@ MainCalculator::MainCalculator()
     this->settings = settings;
 }
 
-MainCalculator::~MainCalculator()
-{
-    if(loaded)
-        delete this->de;
-}
 
 QJsonObject MainCalculator::loadSettings()
 {
@@ -60,17 +66,31 @@ QJsonObject MainCalculator::loadSettings()
     return QJsonDocument(QJsonDocument::fromJson(fsettigs.readAll())).object();
 }
 
+bool MainCalculator::isCounting()
+{
+    return this->counting;
+}
+
+bool MainCalculator::hasCounted()
+{
+    return this->counted;
+}
+
 void MainCalculator::calc()
 {
     if(!loaded) {
         emit error("Настройки не загружены!");
         return;
     }
+    this->counting = true;
+    this->stopped = false;
+
     QVector<double> TRoll;
     Focus focus = de->getFocus();
     int N = de->N + de->Nnonfocus;
     int rollRounds = settings.value("timeToModel").toDouble() * settings.value("vSpin").toDouble();
     emit sendMaxValue(rollRounds);
+    emit setUpGraphSlider(N);
 
     QFile fileEdge("outputEdge.csv");
     fileEdge.open(QIODevice::WriteOnly|QFile::Truncate);
@@ -90,7 +110,7 @@ void MainCalculator::calc()
     for(int i = 0; i < parts-1; i++){
         NParts[i] = i % 2 == 0 ? (de->getInjectors()[qFloor(i / 2)].getAngleStart() - (i == 0 ? 0 : de->getInjectors()[qFloor(i / 2) - 1].getAngleSize() + de->getInjectors()[qFloor(i / 2) - 1].getAngleStart())) / de->theta : de->getInjectors()[qFloor(i / 2)].getAngleSize() / de->theta;
     }
-    for(int round = 0; round < rollRounds; round++)
+    for(int round = 0; round < rollRounds && !this->isStopped(); round++)
     {
         NGone = 0;
         de->setFocus(focus);
@@ -107,15 +127,34 @@ void MainCalculator::calc()
 
         streamEdge << de->getResult(N, de->Mcont) << delim;
         streamCenter << de->getResult(N, 0) << delim;
+        QApplication::processEvents();
         emit progress(round + 1);
     }
     delete[] NParts;
     fileEdge.close();
     fileCenter.close();
-    emit toOutput(this->de);
+    this->counting = false;
+    this->counted = true;
+    emit toOutput();
 }
 
 void MainCalculator::finish()
 {
     emit finished();
+}
+
+bool MainCalculator::isStopped()
+{
+    return this->stopped;
+}
+
+void MainCalculator::setStopped(bool value)
+{
+    qDebug() << this->stopped;
+    this->stopped = value;
+}
+
+void MainCalculator::stop()
+{
+    this->stopped = true;
 }

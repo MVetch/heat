@@ -29,6 +29,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void setUpGui();
+    void buildHeatDeepPlot(int);
 
 private slots:
     void onClick();
@@ -37,12 +39,19 @@ private slots:
     void aboutQt();
     void callHelp();
     void clear();
-    void output(diffEquation *de);
+    void output();
     void showError(QString);
-    void updateProgressBar(int);
+    void updateEveryStep(int);
     void updateProgressBarMaxValue(int);
 
+    void on_sliderDeep_valueChanged(int value);
+
+    void on_sliderDeep_sliderMoved(int position);
+
+    void on_pushButton_stop_clicked();
+
 signals:
+    stopped();
     finished();
 
 private:
